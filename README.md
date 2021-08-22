@@ -2,7 +2,7 @@
    <img
         alt="eMilitar"
         title="eMilitar"
-        src=".github/logo.svg"
+        src=".github/logo.png"
         width="300"
     />
 </h1>
