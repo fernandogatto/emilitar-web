@@ -17,7 +17,15 @@ import { MenuContainer } from './styles';
 
 import logo from '../../assets/logo.png';
 
+import { useAuth } from '../../common/contexts/Auth';
+
 const Menu = () => {
+    const { signOut } = useAuth();
+
+    const handleSignOut = () => {
+        signOut();
+    }
+
     return (
         <MenuContainer>
             <img
@@ -41,7 +49,7 @@ const Menu = () => {
                 startIcon={<ExitToApp />}
                 color="primary"
                 fullWidth
-                onClick={() => {}}
+                onClick={handleSignOut}
                 className="logoff"
             >
                 Sair

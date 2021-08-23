@@ -6,28 +6,31 @@ import {
     Route,
 } from 'react-router-dom';
 
+import CustomRoute from './CustomRoute';
+
 import * as Modules from './modules';
 
 const Routes = () => {
     return (
         <Router>
             <Switch>
-                <Route
+                <CustomRoute
                     path="/"
                     component={Modules.SignIn}
                     exact
                 />
 
-                <Route
+                <CustomRoute
                     path="/criar-conta"
                     component={Modules.SignUp}
                     exact
                 />
 
-                <Route
+                <CustomRoute
                     path="/status-do-alistamento"
                     component={Modules.Status}
                     exact
+                    isPrivate
                 />
 
                 <Route

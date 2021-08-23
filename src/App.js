@@ -10,6 +10,8 @@ import { ThemeProvider as MaterialThemeProvider } from '@material-ui/styles';
 
 import store from './common/rules/store';
 
+import AppProvider from './common/contexts';
+
 import Routes from './routes';
 
 import GlobalStyle from './styles/global';
@@ -20,7 +22,9 @@ const App = () => {
     return (
         <Provider store={store}>
             <MaterialThemeProvider theme={theme}>
-                <Routes />
+                <AppProvider>
+                    <Routes />
+                </AppProvider>
             </MaterialThemeProvider>
 
             <GlobalStyle />

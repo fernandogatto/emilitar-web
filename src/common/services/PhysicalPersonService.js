@@ -1,32 +1,34 @@
 import axios from 'axios';
 
+import Api from '../helpers/Api';
+
 class PhysicalPersonService {
     getAddressByCep(cep) {
         return axios.get(`https://viacep.com.br/ws/${cep}/json/`);
     }
 
     listPhysicalPeople() {
-        return axios.get(`/pessoas-fisicas`);
+        return Api.get(`/pessoas-fisicas`);
     }
 
     getPhysicalPersonById(id) {
-        return axios.get(`/pessoas-fisicas/${id}`);
+        return Api.get(`/pessoas-fisicas/${id}`);
     }
 
     getStatusMilitaryEnlistment() {
-        return axios.get(`/pessoas-fisicas/alistamento/status`);
+        return Api.get(`/pessoas-fisicas/alistamento/status`);
     }
 
     createPhysicalPerson(data) {
-        return axios.post(`/pessoas-fisicas`, { data });
+        return Api.post(`/pessoas-fisicas`, data);
     }
 
     updatePhysicalPersonById(id, data) {
-        return axios.put(`/pessoas-fisicas/${id}`, { data });
+        return Api.put(`/pessoas-fisicas/${id}`, data);
     }
 
     deletePhysicalPersonById(id) {
-        return axios.delete(`/pessoas-fisicas/${id}`);
+        return Api.delete(`/pessoas-fisicas/${id}`);
     }
 }
 

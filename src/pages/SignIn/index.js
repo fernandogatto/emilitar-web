@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 
 import {
     Box,
     FormControl,
+    FormHelperText,
     TextField,
     OutlinedInput,
     InputLabel,
@@ -24,7 +25,13 @@ import { ContainerSignIn, SignInBackground } from './styles';
 
 import logo from '../../assets/logo.png';
 
+import { useAuth } from '../../common/contexts/Auth';
+
 const SignIn = () => {
+    const history = useHistory();
+
+    const { signIn } = useAuth();
+
     const [inputTextData, setInputTextData] = useState({
         email: '',
         senha: '',
@@ -45,7 +52,7 @@ const SignIn = () => {
         setInputTextData({...inputTextData, [name]: value});
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         try {
             const { email, senha } = inputTextData;
 
@@ -55,9 +62,18 @@ const SignIn = () => {
             });
 
             if (email !== '' && senha !== '') {
+                const data = {
+                    email,
+                    senha,
+                };
+
                 setIsSubmiting(true);
 
+                await signIn(data);
+
                 setIsSubmiting(false);
+
+                history.push('/status-do-alistamento');
             }
         } catch (err) {
             console.log('handleSubmit', err);
@@ -89,6 +105,7 @@ const SignIn = () => {
                         onChange={handleInputTextChange}
                         disabled={isSubmiting}
                         className="input"
+                        helperText={inputError.email && 'Campo obrigatório'}
                     />
 
                     <FormControl
@@ -130,6 +147,12 @@ const SignIn = () => {
                                 </InputAdornment>
                             }
                         />
+
+                        {inputError.senha && (
+                            <FormHelperText>
+                                Campo obrigatório
+                            </FormHelperText>
+                        )}
                     </FormControl>
 
                     <Box mt={2} className="grid-button">

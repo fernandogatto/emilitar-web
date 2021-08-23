@@ -1,5 +1,5 @@
 const URLS = {
-    baseUrl: `${process.env.REACT_APP_API_URL}`,
+    baseUrl: `https://emilitar-api.herokuapp.com`,
 }
 
 export default URLS;
