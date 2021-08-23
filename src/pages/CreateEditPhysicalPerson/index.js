@@ -121,8 +121,6 @@ const CreateEditPhysicalPerson = ({ match }) => {
 
             setIsLoadingOptions(false);
 
-            console.log('getOptions', response);
-
             setSchooling(response.escolaridades);
 
             setCivilStatus(response.estadosCivil);
@@ -189,13 +187,22 @@ const CreateEditPhysicalPerson = ({ match }) => {
                             escolaridade: inputSelectData.escolaridade,
                             estadoCivil: inputSelectData.estadoCivil,
                             tipoSanguineo: inputSelectData.tipoSanguineo,
+                            statusAlistamento: inputSelectData.statusAlistamento,
                         });
 
-                        // setInputTextData({
-                        //     logradouro: response.logradouro,
-                        //     complemento: response.complemento,
-                        //     bairro: response.bairro,
-                        // });
+                        setInputTextData({
+                            nome: inputTextData.nome,
+                            sobrenome: inputTextData.sobrenome,
+                            cpf: inputTextData.cpf,
+                            telefone: inputTextData.telefone,
+                            emailContato: inputTextData.emailContato,
+                            nomeAlternativo: inputTextData.nomeAlternativo,
+                            cep: inputTextData.cep,
+                            logradouro: response.logradouro,
+                            numero: response.numero,
+                            complemento: response.complemento,
+                            bairro: response.bairro,
+                        });
                     }
             } catch (err) {
                 console.log('handleChangeCep', err);
@@ -208,11 +215,24 @@ const CreateEditPhysicalPerson = ({ match }) => {
             const {
                 nome,
                 sobrenome,
+                cpf,
+                telefone,
+                emailContato,
+                Alternativo,
+                cep,
+                logradouro,
+                numero,
+                complemento,
+                bairro,
             } = inputTextData;
 
             const {
                 estado,
                 municipio,
+                escolaridade,
+                estadoCivil,
+                tipoSanguineo,
+                statusAlistamento,
             } = inputSelectData;
 
             setInputError({
@@ -225,8 +245,26 @@ const CreateEditPhysicalPerson = ({ match }) => {
                 setIsSubmiting(true);
 
                 const data = {
-
+                    nome,
+                    sobrenome,
+                    cpf,
+                    telefone,
+                    emailContato,
+                    Alternativo,
+                    cep,
+                    logradouro,
+                    numero,
+                    complemento,
+                    bairro,
+                    estado,
+                    municipio,
+                    escolaridade,
+                    estadoCivil,
+                    tipoSanguineo,
+                    statusAlistamento,
                 };
+
+                console.log('handleSubmit', data)
 
                 isUpdate
                     ? await dispatch(PhysicalPersonOperations.updatePhysicalPersonById(id, data))
