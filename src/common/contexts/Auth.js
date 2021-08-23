@@ -1,6 +1,6 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useEffect, useState, useContext } from 'react';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import Api from '../helpers/Api';
 
@@ -15,6 +15,12 @@ const AuthContext = createContext({});
 
 // Component
 const AuthProvider = ({ children }) => {
+    const {
+        IsLoading: IsLoadingUser,
+        HasError: HasErrorUser,
+        Data: User
+    } = useSelector(state => state.Auth);
+
     const dispatch = useDispatch();
 
     const [authData, setAuthData] = useState(() => {
@@ -28,6 +34,18 @@ const AuthProvider = ({ children }) => {
 
         return {};
     });
+
+    useEffect(() => {
+        getUser();
+    }, []);
+
+    const getUser = async () => {
+        try {
+            await dispatch(AuthOperations.getUserAuth());
+        } catch (err) {
+            console.log('getUser', err);
+        }
+    }
 
     const signIn = async (data) => {
         try {
@@ -51,7 +69,14 @@ const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider
-            value={{ accessToken: authData.accessToken, signIn, signOut }}
+            value={{
+                accessToken: authData.accessToken,
+                isLoadingUser: IsLoadingUser,
+                hasErrorUser: HasErrorUser,
+                user: User,
+                signIn,
+                signOut,
+            }}
         >
             {children}
         </AuthContext.Provider>

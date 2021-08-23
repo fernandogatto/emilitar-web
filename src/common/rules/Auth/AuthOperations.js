@@ -24,8 +24,6 @@ const AuthOperations = {
 
                 dispatch(AuthActions.SetSuccess(user));
             }
-
-            dispatch(AuthActions.SetSuccess({}));
         } catch (error) {
             Toast.showError(getErrorMessage(error));
 

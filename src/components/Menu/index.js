@@ -7,7 +7,6 @@ import {
 } from '@material-ui/core';
 
 import {
-    Home,
     Timeline,
     Person,
     ExitToApp,
@@ -20,7 +19,7 @@ import logo from '../../assets/logo.png';
 import { useAuth } from '../../common/contexts/Auth';
 
 const Menu = () => {
-    const { signOut } = useAuth();
+    const { isLoadingUser, hasErrorUser, user, signOut } = useAuth();
 
     const handleSignOut = () => {
         signOut();
@@ -33,17 +32,21 @@ const Menu = () => {
                 alt="Logo eMilitar"
             />
 
-            <nav>
-                <NavLink to="/status-do-alistamento" activeClassName="active">
-                    <Timeline />
-                    Status do Alistamento
-                </NavLink>
+            {!isLoadingUser && !hasErrorUser && user && user.usuario_id !== '' && (
+                <nav>
+                    <NavLink to="/status-do-alistamento" activeClassName="active">
+                        <Timeline />
+                        Status do Alistamento
+                    </NavLink>
 
-                <NavLink to="/pessoas-fisicas" activeClassName="active">
-                    <Person />
-                    Pessoas Físicas
-                </NavLink>
-            </nav>
+                    {user.roles && user.roles.length > 0 && user.roles.includes('SERVIDOR') && (
+                        <NavLink to="/pessoas-fisicas" activeClassName="active">
+                            <Person />
+                            Pessoas Físicas
+                        </NavLink>
+                    )}
+                </nav>
+            )}
 
             <Button
                 startIcon={<ExitToApp />}
