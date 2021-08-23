@@ -34,7 +34,7 @@ import ListaEstados from '../../common/schemas/Estados';
 
 import ListaCidades from '../../common/schemas/Cidades';
 
-import PhysicalPersonOperations from '../../common/rules/Options/PhysicalPersonOperations';
+import PhysicalPersonOperations from '../../common/rules/PhysicalPerson/PhysicalPersonOperations';
 
 const CreateEditPhysicalPerson = ({ match }) => {
     const { id } = match.params;
@@ -63,6 +63,7 @@ const CreateEditPhysicalPerson = ({ match }) => {
         escolaridade: '',
         estadoCivil: '',
         tipoSanguineo: '',
+        statusAlistamento: '',
     });
 
     const [inputError, setInputError] = useState({
@@ -76,7 +77,10 @@ const CreateEditPhysicalPerson = ({ match }) => {
         cep: false,
         estado: false,
         municipio: false,
-        selectedMaterials: false,
+        escolaridade: false,
+        estadoCivil: false,
+        tipoSanguineo: false,
+        statusAlistamento: false,
     });
 
     const [physicalPerson, setPhysicalPerson] = useState({});
@@ -358,6 +362,181 @@ const CreateEditPhysicalPerson = ({ match }) => {
                                     className="input"
                                     helperText={inputError.emailContato && 'Campo obrigatório'}
                                 />
+
+                                <FormControl
+                                    required
+                                    error={inputError.escolaridade}
+                                    variant="outlined"
+                                    fullWidth
+                                    className="input"
+                                >
+                                    <InputLabel htmlFor="escolaridade">
+                                        Escolaridade
+                                    </InputLabel>
+
+                                    <Select
+                                        value={inputSelectData.escolaridade}
+                                        onChange={handleSelectChange}
+                                        label="Escolaridade"
+                                        name="escolaridade"
+                                        disabled={isSubmiting}
+                                    >
+                                        {schooling && schooling.length > 0 && schooling.map(item => (
+                                            <MenuItem
+                                                key={item.id}
+                                                value={item.id}
+                                            >
+                                                {item.valor}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+
+                                    {inputError.escolaridade && (
+                                        <FormHelperText>
+                                            Campo obrigatório
+                                        </FormHelperText>
+                                    )}
+                                </FormControl>
+
+                                <FormControl
+                                    required
+                                    error={inputError.estadoCivil}
+                                    variant="outlined"
+                                    fullWidth
+                                    className="input"
+                                >
+                                    <InputLabel htmlFor="estadoCivil">
+                                        Estado civil
+                                    </InputLabel>
+
+                                    <Select
+                                        value={inputSelectData.estadoCivil}
+                                        onChange={handleSelectChange}
+                                        label="Estado civil"
+                                        name="estadoCivil"
+                                        disabled={isSubmiting}
+                                    >
+                                        {civilStatus && civilStatus.length > 0 && civilStatus.map(item => (
+                                            <MenuItem
+                                                key={item.id}
+                                                value={item.id}
+                                            >
+                                                {item.valor}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+
+                                    {inputError.estadoCivil && (
+                                        <FormHelperText>
+                                            Campo obrigatório
+                                        </FormHelperText>
+                                    )}
+                                </FormControl>
+
+                                <FormControl
+                                    required
+                                    error={inputError.tipoSanguineo}
+                                    variant="outlined"
+                                    fullWidth
+                                    className="input"
+                                >
+                                    <InputLabel htmlFor="tipoSanguineo">
+                                        Tipo sanguíneo
+                                    </InputLabel>
+
+                                    <Select
+                                        value={inputSelectData.tipoSanguineo}
+                                        onChange={handleSelectChange}
+                                        label="Tipo sanguíneo"
+                                        name="tipoSanguineo"
+                                        disabled={isSubmiting}
+                                    >
+                                        {bloodTypes && bloodTypes.length > 0 && bloodTypes.map(item => (
+                                            <MenuItem
+                                                key={item.id}
+                                                value={item.id}
+                                            >
+                                                {item.valor}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+
+                                    {inputError.tipoSanguineo && (
+                                        <FormHelperText>
+                                            Campo obrigatório
+                                        </FormHelperText>
+                                    )}
+                                </FormControl>
+
+                                <FormControl
+                                    required
+                                    error={inputError.tipoSanguineo}
+                                    variant="outlined"
+                                    fullWidth
+                                    className="input"
+                                >
+                                    <InputLabel htmlFor="tipoSanguineo">
+                                        Tipo sanguíneo
+                                    </InputLabel>
+
+                                    <Select
+                                        value={inputSelectData.tipoSanguineo}
+                                        onChange={handleSelectChange}
+                                        label="Tipo sanguíneo"
+                                        name="tipoSanguineo"
+                                        disabled={isSubmiting}
+                                    >
+                                        {bloodTypes && bloodTypes.length > 0 && bloodTypes.map(item => (
+                                            <MenuItem
+                                                key={item.id}
+                                                value={item.id}
+                                            >
+                                                {item.valor}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+
+                                    {inputError.tipoSanguineo && (
+                                        <FormHelperText>
+                                            Campo obrigatório
+                                        </FormHelperText>
+                                    )}
+                                </FormControl>
+
+                                <FormControl
+                                    required
+                                    error={inputError.statusAlistamento}
+                                    variant="outlined"
+                                    fullWidth
+                                    className="input"
+                                >
+                                    <InputLabel htmlFor="statusAlistamento">
+                                        Status do alistamento
+                                    </InputLabel>
+
+                                    <Select
+                                        value={inputSelectData.statusAlistamento}
+                                        onChange={handleSelectChange}
+                                        label="Status do alistamento"
+                                        name="statusAlistamento"
+                                        disabled={isSubmiting}
+                                    >
+                                        {enlistmentStatus && enlistmentStatus.length > 0 && enlistmentStatus.map(item => (
+                                            <MenuItem
+                                                key={item.id}
+                                                value={item.id}
+                                            >
+                                                {item.valor}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+
+                                    {inputError.statusAlistamento && (
+                                        <FormHelperText>
+                                            Campo obrigatório
+                                        </FormHelperText>
+                                    )}
+                                </FormControl>
                             </Box>
 
                             <Box className="item-flex">
