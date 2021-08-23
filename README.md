@@ -38,6 +38,8 @@
 
 To get the API, follow this [eMilitar API](https://emilitar-api.herokuapp.com/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config).
 
+[Click here](https://github.com/dnfetheus/devappcorp-api) to see the API repository.
+
 ## 📌 Technologies <a name="technologies"/>
 
 - [ReactJS](https://pt-br.reactjs.org/)
