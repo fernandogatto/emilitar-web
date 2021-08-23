@@ -20,7 +20,7 @@ import {
     CircularProgress,
 } from '@material-ui/core';
 
-import { ArrowBack, Delete } from '@material-ui/icons';
+import { ArrowBack } from '@material-ui/icons';
 
 import {
     ContainerCreateEditPoints,
@@ -30,93 +30,131 @@ import {
 
 import Menu from '../../components/Menu';
 
-import CheckboxDialog from '../../components/Dialogs/CheckboxDialog';
-
-import ConfirmDialog from '../../components/Dialogs/ConfirmDialog';
-
-import ListaStatusDeposito from '../../common/schemas/StatusPoint';
-
 import ListaEstados from '../../common/schemas/Estados';
 
 import ListaCidades from '../../common/schemas/Cidades';
 
-import PhysicalPersonOperations from '../../common/rules/PhysicalPerson/PhysicalPersonOperations';
+import PhysicalPersonOperations from '../../common/rules/Options/PhysicalPersonOperations';
 
-const CreateEditPhysicalPerson = () => {
+const CreateEditPhysicalPerson = ({ match }) => {
+    const { id } = match.params;
+
     const dispatch = useDispatch();
 
     const history = useHistory();
 
     const [inputTextData, setInputTextData] = useState({
-        descricao: '',
+        nome: '',
+        sobrenome: '',
+        cpf: '',
+        telefone: '',
         emailContato: '',
-        telefoneContato: '',
+        nomeAlternativo: '',
         cep: '',
+        logradouro: '',
+        numero: 0,
+        complemento: '',
+        bairro: '',
     });
 
     const [inputSelectData, setInputSelectData] = useState({
-        estabelecimento: '',
-        statusPonto: '',
         estado: '',
-        cidade: '',
+        municipio: '',
+        escolaridade: '',
+        estadoCivil: '',
+        tipoSanguineo: '',
     });
 
     const [inputError, setInputError] = useState({
-        estabelecimento: false,
-        descricao: false,
-        emailContato: false,
-        telefoneContato: false,
+        nome: false,
+        sobrenome: false,
+        cpf: false,
+        tamanhoCpf: false,
+        telefone: false,
         tamanhoTelefone: false,
-        statusPonto: false,
+        emailContato: false,
         cep: false,
         estado: false,
-        cidade: false,
+        municipio: false,
         selectedMaterials: false,
     });
 
-    const [establishments, setEstablishments] = useState([]);
+    const [physicalPerson, setPhysicalPerson] = useState({});
 
-    const [isLoadingEstablishments, setIsLoadingEstablishments] = useState(false);
+    const [isLoadingPhysicalPerson, setIsLoadingPhysicalPerson] = useState(true);
 
-    const [hasErrorEstablishments, setHasErrorEstablishments] = useState(false);
+    const [hasErrorPhysicalPerson, setHasErrorPhysicalPerson] = useState(false);
 
-    const [materials, setMaterials] = useState([]);
+    const [isLoadingOptions, setIsLoadingOptions] = useState(true);
 
-    const [isLoadingMaterials, setIsLoadingMaterials] = useState(false);
+    const [hasErrorOptions, setHasErrorOptions] = useState(false);
 
-    const [hasErrorMaterials, setHasErrorMaterials] = useState(false);
+    const [schooling, setSchooling] = useState([]);
 
-    const [selectedMaterials, setSelectedMaterials] = useState([]);
+    const [civilStatus, setCivilStatus] = useState([]);
 
-    const [deletedMaterial, setDeletedMaterial] = useState(null);
+    const [enlistmentStatus, setEnlistmentStatus] = useState([]);
 
-    const [selectedFile, setSelectedFile] = useState();
-
-    const [preview, setPreview] = useState('');
+    const [bloodTypes, setBloodTypes] = useState([]);
 
     const [isSubmiting, setIsSubmiting] = useState(false);
 
     const [isUpdate, setIsUpdate] = useState(false);
 
-    const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+    useEffect(() => {
+        getOptions();
 
-    const getMaterials = async () => {
+        if (id) {
+            getPhysicalPerson();
+        }
+    }, []);
+
+    const getOptions = async () => {
         try {
-            setIsLoadingMaterials(true);
+            setIsLoadingOptions(true);
 
-            setHasErrorMaterials(false);
+            const response = await dispatch(PhysicalPersonOperations.getOptions());
 
-            // const response = await dispatch();
+            setIsLoadingOptions(false);
 
-            setIsLoadingMaterials(false);
+            console.log('getOptions', response);
 
-            // setMaterials(response);
+            setSchooling(response.escolaridades);
+
+            setCivilStatus(response.estadosCivil);
+
+            setEnlistmentStatus(response.statusesAlistamento);
+
+            setBloodTypes(response.tiposSanguineos);
         } catch (err) {
-            console.log('getMaterials', err);
+            console.log('getOptions', err);
 
-            setIsLoadingMaterials(false);
+            setIsLoadingOptions(false);
+        }
+    }
 
-            setHasErrorMaterials(true);
+    const getPhysicalPerson = async () => {
+        try {
+            setIsUpdate(true);
+
+            setIsLoadingPhysicalPerson(true);
+
+            setHasErrorPhysicalPerson(false);
+
+            const response = await dispatch(PhysicalPersonOperations
+                .getPhysicalPersonById(id));
+
+            setIsLoadingPhysicalPerson(false);
+
+            setPhysicalPerson(response);
+
+            console.log('getPhysicalPerson', response);
+        } catch (err) {
+            console.log('getPhysicalPerson', err);
+
+            setIsLoadingPhysicalPerson(false);
+
+            setHasErrorPhysicalPerson(true);
         }
     }
 
@@ -143,8 +181,17 @@ const CreateEditPhysicalPerson = () => {
                     if(response && response.cep !== '') {
                         setInputSelectData({
                             estado: response.uf,
-                            cidade: response.localidade,
+                            municipio: response.localidade,
+                            escolaridade: inputSelectData.escolaridade,
+                            estadoCivil: inputSelectData.estadoCivil,
+                            tipoSanguineo: inputSelectData.tipoSanguineo,
                         });
+
+                        // setInputTextData({
+                        //     logradouro: response.logradouro,
+                        //     complemento: response.complemento,
+                        //     bairro: response.bairro,
+                        // });
                     }
             } catch (err) {
                 console.log('handleChangeCep', err);
@@ -152,64 +199,34 @@ const CreateEditPhysicalPerson = () => {
         }
     }
 
-    const handleConfirmDeleteMaterial = (index) => {
-        setDeletedMaterial(index);
-
-        setOpenConfirmDialog(true);
-    }
-
-    const handleDeleteMaterial = (index) => {
-        let _items = [...selectedMaterials];
-
-        _items.splice(index, 1);
-
-        setSelectedMaterials(_items);
-
-        setDeletedMaterial(null);
-    }
-
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         try {
             const {
-                descricao,
-                emailContato,
-                telefoneContato,
-                cep,
+                nome,
+                sobrenome,
             } = inputTextData;
 
             const {
-                estabelecimento,
-                statusPonto,
                 estado,
-                cidade,
+                municipio,
             } = inputSelectData;
 
             setInputError({
-                estabelecimento: estabelecimento === '' ? true : false,
-                descricao: descricao === '' ? true : false,
-                emailContato: emailContato === '' ? true : false,
-                telefoneContato: telefoneContato === '' ? true : false,
-                tamanhoTelefone: telefoneContato.length < 14 ? true : false,
-                statusPonto: statusPonto === '' ? true : false,
-                cep: cep === '' ? true : false,
-                estado: estado === '' ? true : false,
-                cidade: cidade === '' ? true : false,
-                selectedMaterials: selectedMaterials.length === 0 ? true : false,
+                nome: nome === '' ? true : false,
             });
 
             if (
-                estabelecimento !== '' &&
-                descricao !== '' &&
-                emailContato !== '' &&
-                telefoneContato !== '' &&
-                !inputError.tamanhoTelefone < 14 &&
-                statusPonto !== '' &&
-                cep !== '' &&
-                estado !== '' &&
-                cidade !== '' &&
-                selectedMaterials.length > 0
+                nome !== ''
             ) {
                 setIsSubmiting(true);
+
+                const data = {
+
+                };
+
+                isUpdate
+                    ? await dispatch(PhysicalPersonOperations.updatePhysicalPersonById(id, data))
+                    : await dispatch(PhysicalPersonOperations.createPhysicalPerson(data));
 
                 setIsSubmiting(false);
 
@@ -226,22 +243,6 @@ const CreateEditPhysicalPerson = () => {
         <ContainerCreateEditPoints>
             <Menu />
 
-            <ConfirmDialog
-                dialogOpen={openConfirmDialog}
-                handleCloseDialog={(event, reason) => {
-                    setDeletedMaterial(null);
-
-                    setOpenConfirmDialog(false);
-                }}
-                handleConfirmAction={() => {
-                    handleDeleteMaterial(deletedMaterial);
-
-                    setOpenConfirmDialog(false);
-                }}
-                title="Excluir Material"
-                message="Tem certeza que deseja excluir este item?"
-            />
-
             <Box className="container-page">
                 <ContentCreateEditPoints>
                     <Box className="container-back-page">
@@ -255,64 +256,93 @@ const CreateEditPhysicalPerson = () => {
                             </IconButton>
                         </Tooltip>
 
-                        <h1>{isUpdate ? 'Editar': 'Cadastrar'} ponto de coleta</h1>
+                        <h1>{isUpdate ? 'Editar': 'Cadastrar'} pessoa física</h1>
                     </Box>
 
                     <Box className="container-form">
                         <Box className="container-section container-flex">
                             <Box className="item-flex">
-                                <FormControl
-                                    required
-                                    error={inputError.estabelecimento}
-                                    variant="outlined"
-                                    fullWidth
-                                    className="input"
-                                >
-                                    <InputLabel htmlFor="estabelecimento">
-                                        Estabelecimento
-                                    </InputLabel>
-
-                                    <Select
-                                        value={inputSelectData.estado}
-                                        onChange={handleSelectChange}
-                                        label="Estabelecimento"
-                                        name="estabelecimento"
-                                        disabled={isSubmiting}
-                                    >
-                                        {establishments && establishments.length > 0 && establishments.map(item => (
-                                            <MenuItem
-                                                key={item.id}
-                                                value={item.nome}
-                                            >
-                                                {item.nome}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-
-                                    {inputError.estado && (
-                                        <FormHelperText>
-                                            Campo obrigatório
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-
                                 <TextField
                                     required
-                                    error={inputError.descricao}
-                                    multiline
-                                    minRows={5}
-                                    maxRows={5}
+                                    error={inputError.nome}
                                     variant="outlined"
                                     type="text"
-                                    name="descricao"
-                                    label="Descrição"
+                                    name="nome"
+                                    label="Nome"
                                     fullWidth
-                                    value={inputTextData.descricao}
+                                    value={inputTextData.nome}
                                     onChange={handleInputTextChange}
                                     disabled={isSubmiting}
                                     className="input"
-                                    helperText={inputError.descricao && 'Campo obrigatório'}
+                                    helperText={inputError.nome && 'Campo obrigatório'}
                                 />
+
+                                <TextField
+                                    required
+                                    error={inputError.sobrenome}
+                                    variant="outlined"
+                                    type="text"
+                                    name="sobrenome"
+                                    label="Sobrenome"
+                                    fullWidth
+                                    value={inputTextData.sobrenome}
+                                    onChange={handleInputTextChange}
+                                    disabled={isSubmiting}
+                                    className="input"
+                                    helperText={inputError.sobrenome && 'Campo obrigatório'}
+                                />
+
+                                <InputMask
+                                    mask="999.999.999-99"
+                                    maskChar=""
+                                    fullWidth
+                                    value={inputTextData.cpf}
+                                    onChange={handleInputTextChange}
+                                    disabled={isSubmiting}
+                                >
+                                    {() => (
+                                        <TextField
+                                            required
+                                            error={inputError.cpf || inputError.tamanhoCpf}
+                                            variant="outlined"
+                                            type="tel"
+                                            label="CPF"
+                                            name="cpf"
+                                            fullWidth
+                                            className="input"
+                                            helperText={
+                                                (inputError.cpf && 'Campo obrigatório') ||
+                                                (inputError.tamanhoCpf && 'CPF inválido')
+                                            }
+                                        />
+                                    )}
+                                </InputMask>
+
+                                <InputMask
+                                    mask={inputTextData.telefone.length > 14 ? "(99) 99999-9999" : "(99) 9999-99999"}
+                                    maskChar=""
+                                    fullWidth
+                                    value={inputTextData.telefone}
+                                    onChange={handleInputTextChange}
+                                    disabled={isSubmiting}
+                                >
+                                    {() => (
+                                        <TextField
+                                            required
+                                            error={inputError.telefone || inputError.tamanhoTelefone}
+                                            variant="outlined"
+                                            type="tel"
+                                            label="Telefone de contato"
+                                            name="telefone"
+                                            fullWidth
+                                            className="input"
+                                            helperText={
+                                                (inputError.telefone && 'Campo obrigatório') ||
+                                                (inputError.tamanhoTelefone && 'Telefone inválido')
+                                            }
+                                        />
+                                    )}
+                                </InputMask>
 
                                 <TextField
                                     required
@@ -328,67 +358,6 @@ const CreateEditPhysicalPerson = () => {
                                     className="input"
                                     helperText={inputError.emailContato && 'Campo obrigatório'}
                                 />
-
-                                <InputMask
-                                    mask={inputTextData.telefoneContato.length > 14 ? "(99) 99999-9999" : "(99) 9999-99999"}
-                                    maskChar=""
-                                    fullWidth
-                                    value={inputTextData.telefoneContato}
-                                    onChange={handleInputTextChange}
-                                    disabled={isSubmiting}
-                                >
-                                    {() => (
-                                        <TextField
-                                            required
-                                            error={inputError.telefoneContato || inputError.tamanhoTelefone}
-                                            variant="outlined"
-                                            type="tel"
-                                            label="Telefone de contato"
-                                            name="telefoneContato"
-                                            fullWidth
-                                            className="input"
-                                            helperText={
-                                                (inputError.telefoneContato && 'Campo obrigatório') ||
-                                                (inputError.tamanhoTelefone && 'Telefone inválido')
-                                            }
-                                        />
-                                    )}
-                                </InputMask>
-
-                                <FormControl
-                                    required
-                                    error={inputError.statusPonto}
-                                    variant="outlined"
-                                    fullWidth
-                                    className="input"
-                                >
-                                    <InputLabel htmlFor="statusPonto">
-                                        Status
-                                    </InputLabel>
-
-                                    <Select
-                                        value={inputSelectData.statusPonto}
-                                        onChange={handleSelectChange}
-                                        label="Status"
-                                        name="statusPonto"
-                                        disabled={isSubmiting}
-                                    >
-                                        {Object.keys(ListaStatusDeposito).map(key => (
-                                            <MenuItem
-                                                key={key}
-                                                value={key}
-                                            >
-                                                {ListaStatusDeposito[key]}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-
-                                    {inputError.statusPonto && (
-                                        <FormHelperText>
-                                            Campo obrigatório
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
                             </Box>
 
                             <Box className="item-flex">
@@ -456,20 +425,20 @@ const CreateEditPhysicalPerson = () => {
 
                                 <FormControl
                                     required
-                                    error={inputError.cidade}
+                                    error={inputError.municipio}
                                     variant="outlined"
                                     fullWidth
                                     className="input"
                                 >
-                                    <InputLabel htmlFor="cidade">
+                                    <InputLabel htmlFor="municipio">
                                         Cidade
                                     </InputLabel>
 
                                     <Select
-                                        value={inputSelectData.cidade}
+                                        value={inputSelectData.municipio}
                                         onChange={handleSelectChange}
                                         label="Cidade"
-                                        name="cidade"
+                                        name="municipio"
                                         disabled={isSubmiting}
                                     >
                                         {inputSelectData.estado &&
@@ -484,55 +453,70 @@ const CreateEditPhysicalPerson = () => {
                                         ))}
                                     </Select>
 
-                                    {inputError.cidade && (
+                                    {inputError.municipio && (
                                         <FormHelperText>
                                             Campo obrigatório
                                         </FormHelperText>
                                     )}
                                 </FormControl>
+
+                                <TextField
+                                    required
+                                    error={inputError.logradouro}
+                                    variant="outlined"
+                                    type="text"
+                                    name="logradouro"
+                                    label="Logradouro"
+                                    fullWidth
+                                    value={inputTextData.logradouro}
+                                    onChange={handleInputTextChange}
+                                    disabled={isSubmiting}
+                                    className="input"
+                                    helperText={inputError.logradouro && 'Campo obrigatório'}
+                                />
+
+                                <TextField
+                                    required
+                                    error={inputError.numero}
+                                    variant="outlined"
+                                    type="number"
+                                    name="numero"
+                                    label="Número"
+                                    fullWidth
+                                    value={inputTextData.numero}
+                                    onChange={handleInputTextChange}
+                                    disabled={isSubmiting}
+                                    className="input"
+                                    helperText={inputError.numero && 'Campo obrigatório'}
+                                />
+
+                                <TextField
+                                    required
+                                    error={inputError.complemento}
+                                    variant="outlined"
+                                    type="text"
+                                    name="complemento"
+                                    label="Complemento"
+                                    fullWidth
+                                    value={inputTextData.complemento}
+                                    onChange={handleInputTextChange}
+                                    disabled={isSubmiting}
+                                    className="input"
+                                    helperText={inputError.complemento && 'Campo obrigatório'}
+                                />
+
+                                <TextField
+                                    variant="outlined"
+                                    type="text"
+                                    name="nomeAlternativo"
+                                    label="Nome alternativo"
+                                    fullWidth
+                                    value={inputTextData.nomeAlternativo}
+                                    onChange={handleInputTextChange}
+                                    disabled={isSubmiting}
+                                    className="input"
+                                />
                             </Box>
-                        </Box>
-
-                        <Box className="container-section">
-                            <h2>Endereço</h2>
-
-                        </Box>
-
-                        <CheckboxDialog
-                            titleSection="Materiais"
-                            hideAdd={false}
-                            error={inputError.selectedMaterials}
-                            messageError="Selecione o material *"
-                            closeError={() => setInputError({
-                                ...inputError,
-                                ['selectedMaterials']: false,
-                            })}
-                            selectedArray={selectedMaterials}
-                            setSelectedArray={setSelectedMaterials}
-                            isLoading={isLoadingMaterials}
-                            hasError={hasErrorMaterials}
-                            onPress={getMaterials}
-                            array={materials}
-                            title="Selecionar Material"
-                            confirm="Salvar"
-                        />
-
-                        <Box className="container-section">
-                            {materials && materials.length > 0 && selectedMaterials && selectedMaterials.length > 0 && selectedMaterials.map((item, index) => (
-                                <SelectedItem key={item.id}>
-                                    <Box className="item-title">
-                                        <p>{materials.find(value => value.id === item.id).nome}</p>
-                                    </Box>
-
-                                    <Box className="actions">
-                                        <Tooltip title="Excluir" arrow>
-                                            <IconButton onClick={() => handleConfirmDeleteMaterial(index)}>
-                                                <Delete />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </Box>
-                                </SelectedItem>
-                            ))}
                         </Box>
 
                         <Box className="grid-button">

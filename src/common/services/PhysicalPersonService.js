@@ -19,6 +19,10 @@ class PhysicalPersonService {
         return Api.get(`/pessoas-fisicas/alistamento/status`);
     }
 
+    getOptions() {
+        return Api.get(`/opcoes/pessoas-fisicas`);
+    }
+
     createPhysicalPerson(data) {
         return Api.post(`/pessoas-fisicas`, data);
     }

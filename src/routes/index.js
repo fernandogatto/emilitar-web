@@ -44,6 +44,12 @@ const Routes = () => {
                     component={Modules.CreateEditPhysicalPerson}
                     exact
                 />
+
+                <Route
+                    path="/pessoas-fisicas/editar/:id"
+                    component={Modules.CreateEditPhysicalPerson}
+                    exact
+                />
             </Switch>
         </Router>
     )

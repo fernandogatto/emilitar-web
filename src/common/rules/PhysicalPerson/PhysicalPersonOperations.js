@@ -49,6 +49,17 @@ const PhysicalPersonOperations = {
             throw error;
         }
     },
+    getOptions: () => async () => {
+        try {
+            const response = await PhysicalPersonService.getOptions();
+
+            return response.data;
+        } catch (error) {
+            Toast.showError(getErrorMessage(error));
+
+            throw error;
+        }
+    },
     createPhysicalPerson: (data) => async () => {
         try {
             const response = await PhysicalPersonService.createPhysicalPerson(data);
