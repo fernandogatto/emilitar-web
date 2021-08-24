@@ -17,7 +17,6 @@ export const ContainerPoints = withTheme(styled.div`
 `);
 
 export const ContentPoints = withTheme(styled.div`
-    height: 100%;
     max-width: 1200px;
     width: 100%;
     margin: auto;

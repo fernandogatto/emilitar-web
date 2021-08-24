@@ -17,7 +17,6 @@ export const ContainerCreateEditPoints = withTheme(styled.div`
 `);
 
 export const ContentCreateEditPoints = withTheme(styled.div`
-    height: 100%;
     max-width: 1200px;
     width: 100%;
     margin: auto;

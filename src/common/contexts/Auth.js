@@ -42,7 +42,6 @@ const AuthProvider = ({ children }) => {
     const getUser = async () => {
         try {
             await dispatch(AuthOperations.getUserAuth());
-            console.log('getUser')
         } catch (err) {
             console.log('getUser', err);
         }
