@@ -163,14 +163,11 @@ const CreateEditPhysicalPerson = ({ match }) => {
             });
 
             setInputSelectData({
-                estado: '',
+                estado: response.endereco.municipio.codigoEstado,
                 municipio: '',
-                escolaridade: response.escolaridade,
-                estadoCivil: response.estadoCivil,
-                tipoSanguineo: {
-                    id: response.tipoSanguineo.id,
-                    valor: response.tipoSanguineo.valor,
-                }
+                escolaridade: response.escolaridade.id,
+                estadoCivil: response.estadoCivil.id,
+                tipoSanguineo: response.tipoSanguineo.id
             });
 
             setPhysicalPerson(response);
@@ -300,12 +297,12 @@ const CreateEditPhysicalPerson = ({ match }) => {
                 const data = {
                     nome,
                     sobrenome,
-                    cpf,
-                    telefone,
+                    cpf: cpf.replace(/[^0-9]+/g, ''),
+                    telefone: telefone.replace(/[^0-9]+/g, ''),
                     emailContato,
                     endereco: {
                         nomeAlternativo,
-                        cep,
+                        cep: cep.replace(/[^0-9]+/g, ''),
                         logradouro,
                         numero: Number(numero),
                         complemento,
@@ -316,9 +313,9 @@ const CreateEditPhysicalPerson = ({ match }) => {
                             codigoEstado: estado,
                         },
                     },
-                    escolaridade,
-                    estadoCivil,
-                    tipoSanguineo,
+                    escolaridade: schooling.find(item => item.id === escolaridade),
+                    estadoCivil: civilStatus.find(item => item.id === estadoCivil),
+                    tipoSanguineo: bloodTypes.find(item => item.id === tipoSanguineo),
                 };
 
                 console.log('handleSubmit', data)
@@ -370,7 +367,7 @@ const CreateEditPhysicalPerson = ({ match }) => {
                         (!isLoadingPhysicalPerson &&
                             !hasErrorPhysicalPerson &&
                             physicalPerson &&
-                            physicalPerson.nome !== '')) && (
+                            physicalPerson.nome !== '') && (
                                 <Box className="container-form">
                                     <Box className="container-section container-flex">
                                         <Box className="item-flex">
@@ -503,7 +500,7 @@ const CreateEditPhysicalPerson = ({ match }) => {
                                                     {schooling && schooling.length > 0 && schooling.map(item => (
                                                         <MenuItem
                                                             key={item.id}
-                                                            value={item}
+                                                            value={item.id}
                                                         >
                                                             {item.valor}
                                                         </MenuItem>
@@ -538,7 +535,7 @@ const CreateEditPhysicalPerson = ({ match }) => {
                                                     {civilStatus && civilStatus.length > 0 && civilStatus.map(item => (
                                                         <MenuItem
                                                             key={item.id}
-                                                            value={item}
+                                                            value={item.id}
                                                         >
                                                             {item.valor}
                                                         </MenuItem>
@@ -573,7 +570,7 @@ const CreateEditPhysicalPerson = ({ match }) => {
                                                     {bloodTypes && bloodTypes.length > 0 && bloodTypes.map(item => (
                                                         <MenuItem
                                                             key={item.id}
-                                                            value={item}
+                                                            value={item.id}
                                                         >
                                                             {item.valor}
                                                         </MenuItem>
@@ -767,7 +764,7 @@ const CreateEditPhysicalPerson = ({ match }) => {
                                         </Box>
                                     </Box>
                                 </Box>
-                    )}
+                    ))}
                 </ContentCreateEditPoints>
             </Box>
         </ContainerCreateEditPoints>
