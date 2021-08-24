@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { withTheme  } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 
 export const ContainerPoints = withTheme(styled.div`
     width: 100%;
@@ -21,35 +21,64 @@ export const ContentPoints = withTheme(styled.div`
     max-width: 1200px;
     width: 100%;
     margin: auto;
+
+    p {
+        color: ${props => props.theme.palette.description.secondary.light};
+    }
 `);
 
-export const ContainerSearch = withTheme(styled.div`
-    display: flex;
+export const ContainerPhysicalPersonCard = withTheme(styled.div`
+    padding: 25px 20px;
+    width: 100%;
+    background-color: ${props => props.theme.palette.background.primary.main};
+    border-radius: 12px;
 
-    .input {
-        margin-right: 16px;
+    & + div {
+        margin-top: 16px;
     }
 
-    .grid-button {
+    p {
+        line-height: 21px;
+    }
+
+    .item-container-name {
+        margin-bottom: 16px;
         display: flex;
-        justify-content: flex-end;
         align-items: center;
+        justify-content: space-between;
 
-        .wrapper {
-            position: relative;
-            height: 56px;
+        @media(max-width: 768px) {
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
 
-            button {
-                height: 56px;
-            }
+        h2 {
+            margin-right: 16px;
+        }
 
-            .circular-progress {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                margin-top: -12px;
-                margin-left: -12px;
-            }
+        svg {
+            font-size: 18px;
+        }
+
+        a:hover {
+            color: ${props => props.theme.palette.text.secondary};
+        }
+    }
+
+    .item-flex {
+        display: flex;
+        align-items: center;
+    }
+
+    .item-status {
+        background-color: ${props => props.theme.palette.description.secondary.light};
+        padding: 6px 12px;
+        border-radius: 24px;
+        width: fit-content;
+
+        p {
+            color: ${props => props.theme.palette.description.primary.main};
         }
     }
 `);

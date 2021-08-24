@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { withTheme  } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 
 export const ContainerPoints = withTheme(styled.div`
     width: 100%;

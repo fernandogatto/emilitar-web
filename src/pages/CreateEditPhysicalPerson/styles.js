@@ -1,6 +1,6 @@
 import styled, {keyframes} from 'styled-components';
 
-import { withTheme  } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 
 function bganimation() {
     return keyframes`

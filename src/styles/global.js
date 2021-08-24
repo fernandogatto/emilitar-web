@@ -71,6 +71,7 @@ export default createGlobalStyle`
 
         h1 {
             margin-right: 16px;
+            line-height: 48px;
         }
     }
 
