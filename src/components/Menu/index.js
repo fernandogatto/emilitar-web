@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { NavLink } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
 
 import {
     Button,
@@ -19,10 +19,14 @@ import logo from '../../assets/logo.png';
 import { useAuth } from '../../common/contexts/Auth';
 
 const Menu = () => {
+    const history = useHistory();
+
     const { isLoadingUser, hasErrorUser, user, signOut } = useAuth();
 
     const handleSignOut = () => {
         signOut();
+
+        history.push('/');
     }
 
     return (

@@ -37,11 +37,12 @@ const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         getUser();
-    }, []);
+    }, [authData]);
 
     const getUser = async () => {
         try {
             await dispatch(AuthOperations.getUserAuth());
+            console.log('getUser')
         } catch (err) {
             console.log('getUser', err);
         }

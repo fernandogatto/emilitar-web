@@ -25,7 +25,6 @@ import { ArrowBack } from '@material-ui/icons';
 import {
     ContainerCreateEditPoints,
     ContentCreateEditPoints,
-    SelectedItem,
 } from './styles';
 
 import Menu from '../../components/Menu';

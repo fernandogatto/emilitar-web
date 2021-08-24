@@ -12,17 +12,17 @@ import {
 
 import { Add, Edit, Delete } from '@material-ui/icons';
 
-import Menu from '../../components/Menu';
-
-import ConfirmDialog from '../../components/Dialogs/ConfirmDialog';
-
-import LoadingCard from '../../components/Loadings/LoadingCard';
-
 import {
     ContainerPoints,
     ContentPoints,
     ContainerPhysicalPersonCard,
 } from './styles';
+
+import Menu from '../../components/Menu';
+
+import ConfirmDialog from '../../components/Dialogs/ConfirmDialog';
+
+import LoadingCard from '../../components/Loadings/LoadingCard';
 
 import PhysicalPersonOperations from '../../common/rules/PhysicalPerson/PhysicalPersonOperations';
 
