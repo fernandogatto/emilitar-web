@@ -1,53 +1,53 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 import {
     Box,
-    Tooltip,
-    IconButton,
-    FormControl,
-    InputLabel,
-    OutlinedInput,
-    InputAdornment,
-    Button,
-    CircularProgress,
 } from '@material-ui/core';
-
-import { Add, Search } from '@material-ui/icons';
 
 import Menu from '../../components/Menu';
 
 import {
     ContainerPoints,
     ContentPoints,
-    ContainerSearch,
 } from './styles';
 
+import PhysicalPersonOperations from '../../common/rules/PhysicalPerson/PhysicalPersonOperations';
+
 const Status = () => {
-    const [inputTextData, setInputTextData] = useState({
-        busca: '',
-    });
+    const dispatch = useDispatch();
 
-    const [isSubmiting, setIsSubmiting] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const handleInputTextChange = (event) => {
-        const { name, value } = event.target;
+    const [hasError, setHasError] = useState(false);
 
-        setInputTextData({...inputTextData, [name]: value});
-    }
+    const [status, setStatus] = useState({});
 
-    const handleSearch = () => {
+    useEffect(() => {
+        getStatus();
+    }, []);
+
+    const getStatus = async () => {
         try {
-            const { busca } = inputTextData;
+            setIsLoading(true);
 
-            setIsSubmiting(true);
+            setHasError(false);
 
-            setIsSubmiting(false);
+            const response = await dispatch(PhysicalPersonOperations
+                .getStatusMilitaryEnlistment());
+
+            setIsLoading(false);
+
+            setStatus(response);
+
+            console.log('getStatus', response)
         } catch (err) {
-            console.log('handleSearch', err);
+            console.log('getStatus', err);
 
-            setIsSubmiting(false);
+            setIsLoading(false);
+
+            setHasError(true);
         }
     }
 
@@ -61,60 +61,7 @@ const Status = () => {
                         <h1>Status do alistamento</h1>
                     </Box>
 
-                    <ContainerSearch>
-                        <FormControl
-                            variant="outlined"
-                            className="input"
-                        >
-                            <InputLabel htmlFor="outlined-adornment-password">
-                                Procurar
-                            </InputLabel>
 
-                            <OutlinedInput
-                                id="outlined-adornment-search"
-                                type="search"
-                                name="busca"
-                                labelWidth={65}
-                                value={inputTextData.busca}
-                                onChange={handleInputTextChange}
-                                disabled={isSubmiting}
-                                startAdornment={
-                                    <InputAdornment position="start">
-                                        <IconButton
-                                            aria-label="toggle password visibility"
-                                            onMouseDown={event => event.preventDefault()}
-                                            edge="start"
-                                        >
-                                            <Search />
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                            />
-                        </FormControl>
-
-                        <Box className="grid-button">
-                            <Box className="wrapper">
-                                {isSubmiting && (
-                                    <CircularProgress
-                                        className="circular-progress"
-                                        style={{ width: 24, height: 24 }}
-                                    />
-                                )}
-
-                                <Button
-                                    aria-label="Submeter formulário de pesquisa"
-                                    type="submit"
-                                    variant="contained"
-                                    color="primary"
-                                    size="large"
-                                    disabled={isSubmiting}
-                                    onClick={handleSearch}
-                                >
-                                    Procurar
-                                </Button>
-                            </Box>
-                        </Box>
-                    </ContainerSearch>
                 </ContentPoints>
             </Box>
         </ContainerPoints>

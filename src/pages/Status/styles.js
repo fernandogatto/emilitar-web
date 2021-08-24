@@ -21,34 +21,3 @@ export const ContentPoints = withTheme(styled.div`
     width: 100%;
     margin: auto;
 `);
-
-export const ContainerSearch = withTheme(styled.div`
-    display: flex;
-
-    .input {
-        margin-right: 16px;
-    }
-
-    .grid-button {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-
-        .wrapper {
-            position: relative;
-            height: 56px;
-
-            button {
-                height: 56px;
-            }
-
-            .circular-progress {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                margin-top: -12px;
-                margin-left: -12px;
-            }
-        }
-    }
-`);
