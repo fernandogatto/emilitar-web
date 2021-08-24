@@ -21,12 +21,6 @@ const Routes = () => {
                 />
 
                 <CustomRoute
-                    path="/criar-conta"
-                    component={Modules.SignUp}
-                    exact
-                />
-
-                <CustomRoute
                     path="/status-do-alistamento"
                     component={Modules.Status}
                     exact
