@@ -164,7 +164,9 @@ const PhysicalPerson = () => {
                                     </Box>
                                 </Box>
 
-                                <p>CPF: {item.cpf}</p>
+                                <p>
+                                    CPF: {item.cpf.replace(/(\d{3})?(\d{3})?(\d{3})?(\d{2})/, '$1.$2.$3-$4')}
+                                </p>
 
                                 <p>
                                     {item.bairro} - {item.municipio} - {item.estado}
