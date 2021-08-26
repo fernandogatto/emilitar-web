@@ -14,10 +14,10 @@ export const MenuContainer = withTheme(styled.div`
 
     img {
         height: 70px;
+        margin-bottom: 32px;
     }
 
     nav {
-        margin-top: 32px;
         display: flex;
         flex-direction: column;
         width: 100%;
