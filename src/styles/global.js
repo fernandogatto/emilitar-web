@@ -38,14 +38,14 @@ export default createGlobalStyle`
 
     .container-grid-area {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: 2fr 1fr;
         grid-template-rows: auto;
         column-gap: 32px;
         row-gap: 32px;
         grid-template-areas:
-            "header header header"
-            "main main sidebar"
-            "footer footer .";
+            "header header"
+            "main sidebar"
+            "footer sidebar";
 
         .item-header {
             grid-area: header;
@@ -57,6 +57,7 @@ export default createGlobalStyle`
 
         .item-sidebar {
             grid-area: sidebar;
+            height: fit-content;
         }
 
         .item-footer {
