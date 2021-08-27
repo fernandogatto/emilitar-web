@@ -14,9 +14,5 @@ export const Container = withTheme(styled.div`
         svg {
             font-size: 18px;
         }
-
-        h6 {
-            color: ${props => props.theme.palette.primary.main};
-        }
     }
 `);

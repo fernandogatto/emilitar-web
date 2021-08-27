@@ -20,7 +20,7 @@ import {
     CircularProgress,
 } from '@material-ui/core';
 
-import { ArrowBack, StarRateSharp } from '@material-ui/icons';
+import { ArrowBack } from '@material-ui/icons';
 
 import { Alert, AlertTitle } from '@material-ui/lab';
 
@@ -34,6 +34,10 @@ import { useAuth } from '../../common/contexts/Auth';
 import Menu from '../../components/Menu';
 
 import LoadingForm from '../../components/Loadings/LoadingForm';
+
+import LoadingInput from '../../components/Loadings/LoadingInput';
+
+import HasErrorInput from '../../components/Errors/HasErrorInput';
 
 import ListaEstados from '../../common/schemas/Estados';
 
@@ -154,6 +158,10 @@ const CreateEditPhysicalPerson = ({ match }) => {
 
     const getPhysicalPerson = async () => {
         try {
+            if(!isLoadingUser && hasErrorUser) {
+                getUser();
+            }
+
             setIsUpdate(true);
 
             setIsLoadingPhysicalPerson(true);
@@ -447,8 +455,8 @@ const CreateEditPhysicalPerson = ({ match }) => {
                     </Box>
 
                     <LoadingForm
-                        isLoading={isLoadingPhysicalPerson}
-                        hasError={hasErrorPhysicalPerson}
+                        isLoading={isLoadingPhysicalPerson || isLoadingUser}
+                        hasError={hasErrorPhysicalPerson || hasErrorUser}
                         onPress={getPhysicalPerson}
                     />
 
@@ -568,110 +576,128 @@ const CreateEditPhysicalPerson = ({ match }) => {
                                                 }
                                             />
 
-                                            <FormControl
-                                                required
-                                                error={inputError.escolaridade}
-                                                variant="outlined"
-                                                fullWidth
-                                                className="input"
-                                            >
-                                                <InputLabel htmlFor="escolaridade">
-                                                    Escolaridade
-                                                </InputLabel>
+                                            {hasErrorOptions && (
+                                                <HasErrorInput
+                                                    marginTop={16}
+                                                />
+                                            )}
 
-                                                <Select
-                                                    value={inputSelectData.escolaridade}
-                                                    onChange={handleSelectChange}
-                                                    label="Escolaridade"
-                                                    name="escolaridade"
-                                                    disabled={isSubmiting}
-                                                >
-                                                    {schooling && schooling.length > 0 && schooling.map(item => (
-                                                        <MenuItem
-                                                            key={item.id}
-                                                            value={item.id}
+                                            {isLoadingOptions && (
+                                                <>
+                                                    <LoadingInput marginTop={16} />
+                                                    <LoadingInput marginTop={16} />
+                                                    <LoadingInput marginTop={16} />
+                                                </>
+                                            )}
+
+                                            {!isLoadingOptions && !hasErrorOptions && (
+                                                <>
+                                                    <FormControl
+                                                        required
+                                                        error={inputError.escolaridade}
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        className="input"
+                                                    >
+                                                        <InputLabel htmlFor="escolaridade">
+                                                            Escolaridade
+                                                        </InputLabel>
+
+                                                        <Select
+                                                            value={inputSelectData.escolaridade}
+                                                            onChange={handleSelectChange}
+                                                            label="Escolaridade"
+                                                            name="escolaridade"
+                                                            disabled={isSubmiting}
                                                         >
-                                                            {item.valor}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
+                                                            {schooling && schooling.length > 0 && schooling.map(item => (
+                                                                <MenuItem
+                                                                    key={item.id}
+                                                                    value={item.id}
+                                                                >
+                                                                    {item.valor}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
 
-                                                {inputError.escolaridade && (
-                                                    <FormHelperText>
-                                                        Campo obrigatório
-                                                    </FormHelperText>
-                                                )}
-                                            </FormControl>
+                                                        {inputError.escolaridade && (
+                                                            <FormHelperText>
+                                                                Campo obrigatório
+                                                            </FormHelperText>
+                                                        )}
+                                                    </FormControl>
 
-                                            <FormControl
-                                                required
-                                                error={inputError.estadoCivil}
-                                                variant="outlined"
-                                                fullWidth
-                                                className="input"
-                                            >
-                                                <InputLabel htmlFor="estadoCivil">
-                                                    Estado civil
-                                                </InputLabel>
+                                                    <FormControl
+                                                        required
+                                                        error={inputError.estadoCivil}
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        className="input"
+                                                    >
+                                                        <InputLabel htmlFor="estadoCivil">
+                                                            Estado civil
+                                                        </InputLabel>
 
-                                                <Select
-                                                    value={inputSelectData.estadoCivil}
-                                                    onChange={handleSelectChange}
-                                                    label="Estado civil"
-                                                    name="estadoCivil"
-                                                    disabled={isSubmiting}
-                                                >
-                                                    {civilStatus && civilStatus.length > 0 && civilStatus.map(item => (
-                                                        <MenuItem
-                                                            key={item.id}
-                                                            value={item.id}
+                                                        <Select
+                                                            value={inputSelectData.estadoCivil}
+                                                            onChange={handleSelectChange}
+                                                            label="Estado civil"
+                                                            name="estadoCivil"
+                                                            disabled={isSubmiting}
                                                         >
-                                                            {item.valor}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
+                                                            {civilStatus && civilStatus.length > 0 && civilStatus.map(item => (
+                                                                <MenuItem
+                                                                    key={item.id}
+                                                                    value={item.id}
+                                                                >
+                                                                    {item.valor}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
 
-                                                {inputError.estadoCivil && (
-                                                    <FormHelperText>
-                                                        Campo obrigatório
-                                                    </FormHelperText>
-                                                )}
-                                            </FormControl>
+                                                        {inputError.estadoCivil && (
+                                                            <FormHelperText>
+                                                                Campo obrigatório
+                                                            </FormHelperText>
+                                                        )}
+                                                    </FormControl>
 
-                                            <FormControl
-                                                required
-                                                error={inputError.tipoSanguineo}
-                                                variant="outlined"
-                                                fullWidth
-                                                className="input"
-                                            >
-                                                <InputLabel htmlFor="tipoSanguineo">
-                                                    Tipo sanguíneo
-                                                </InputLabel>
+                                                    <FormControl
+                                                        required
+                                                        error={inputError.tipoSanguineo}
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        className="input"
+                                                    >
+                                                        <InputLabel htmlFor="tipoSanguineo">
+                                                            Tipo sanguíneo
+                                                        </InputLabel>
 
-                                                <Select
-                                                    value={inputSelectData.tipoSanguineo}
-                                                    onChange={handleSelectChange}
-                                                    label="Tipo sanguíneo"
-                                                    name="tipoSanguineo"
-                                                    disabled={isSubmiting}
-                                                >
-                                                    {bloodTypes && bloodTypes.length > 0 && bloodTypes.map(item => (
-                                                        <MenuItem
-                                                            key={item.id}
-                                                            value={item.id}
+                                                        <Select
+                                                            value={inputSelectData.tipoSanguineo}
+                                                            onChange={handleSelectChange}
+                                                            label="Tipo sanguíneo"
+                                                            name="tipoSanguineo"
+                                                            disabled={isSubmiting}
                                                         >
-                                                            {item.valor}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
+                                                            {bloodTypes && bloodTypes.length > 0 && bloodTypes.map(item => (
+                                                                <MenuItem
+                                                                    key={item.id}
+                                                                    value={item.id}
+                                                                >
+                                                                    {item.valor}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
 
-                                                {inputError.tipoSanguineo && (
-                                                    <FormHelperText>
-                                                        Campo obrigatório
-                                                    </FormHelperText>
-                                                )}
-                                            </FormControl>
+                                                        {inputError.tipoSanguineo && (
+                                                            <FormHelperText>
+                                                                Campo obrigatório
+                                                            </FormHelperText>
+                                                        )}
+                                                    </FormControl>
+                                                </>
+                                            )}
                                         </Box>
 
                                         <Box className="item-flex">
