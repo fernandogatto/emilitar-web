@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { NavLink, useHistory } from 'react-router-dom';
 
 import {
+    Box,
+    Drawer,
+    IconButton,
     Button,
 } from '@material-ui/core';
 
@@ -10,6 +13,8 @@ import {
     Timeline,
     Person,
     ExitToApp,
+    Menu as MenuIcon,
+    Close,
 } from '@material-ui/icons';
 
 import { MenuContainer } from './styles';
@@ -25,47 +30,70 @@ const Menu = () => {
 
     const { isLoadingUser, hasErrorUser, user, getUser, signOut } = useAuth();
 
+    const [mobileView, setMobileView] = useState(false);
+
+    const [menuIsOpen, setMenuIsOpen] = useState(false);
+
+    useEffect(() => {
+        const setResponsiveness = () => {
+            return window.innerWidth <= 768
+                ? setMobileView(true)
+                : setMobileView(false);
+        }
+
+        setResponsiveness();
+
+        window.addEventListener('resize', () => setResponsiveness());
+
+        return () => {
+            window.removeEventListener('resize', () => setResponsiveness());
+        };
+    }, []);
+
     const handleSignOut = () => {
         signOut();
 
         history.push('/');
     }
 
-    return (
-        <MenuContainer>
-            <img
-                src={logo}
-                alt="Logo eMilitar"
-            />
+    const navBar = (
+        <>
+            {mobileView && (
+                <IconButton
+                    aria-label="Fechar"
+                    aria-haspopup={false}
+                    edge="end"
+                    onClick={() => setMenuIsOpen(false)}
+                >
+                    <Close />
+                </IconButton>
+            )}
 
-            <LoadingMenu
-                isLoading={isLoadingUser}
-                hasError={hasErrorUser}
-                onPress={getUser}
-            />
+            {!isLoadingUser &&
+                !hasErrorUser &&
+                user &&
+                user.usuario_id !== '' && (
+                    <nav>
+                        <NavLink
+                            to="/status-do-alistamento"
+                            activeClassName="active"
+                        >
+                            <Timeline />
+                            Status do Alistamento
+                        </NavLink>
 
-            {!isLoadingUser && !hasErrorUser && user && user.usuario_id !== '' && (
-                <nav>
-                    <NavLink
-                        to="/status-do-alistamento"
-                        activeClassName="active"
-                    >
-                        <Timeline />
-                        Status do Alistamento
-                    </NavLink>
-
-                    {user.roles &&
-                        user.roles.length > 0 &&
-                        user.roles.includes('SERVIDOR') && (
-                            <NavLink
-                                to="/pessoas-fisicas"
-                                activeClassName="active"
-                            >
-                                <Person />
-                                Pessoas Físicas
-                            </NavLink>
-                    )}
-                </nav>
+                        {user.roles &&
+                            user.roles.length > 0 &&
+                            user.roles.includes('SERVIDOR') && (
+                                <NavLink
+                                    to="/pessoas-fisicas"
+                                    activeClassName="active"
+                                >
+                                    <Person />
+                                    Pessoas Físicas
+                                </NavLink>
+                        )}
+                    </nav>
             )}
 
             <Button
@@ -77,6 +105,52 @@ const Menu = () => {
             >
                 Sair
             </Button>
+        </>
+    )
+
+    const displayDesktop = () => {
+        return navBar;
+    }
+
+    const displayMobile = () => {
+        return menuIsOpen && (
+            <Drawer
+                anchor="left"
+                open={menuIsOpen}
+                onClose={() => setMenuIsOpen(false)}
+            >
+                {navBar}
+            </Drawer>
+        );
+    }
+
+    return (
+        <MenuContainer>
+            <Box className="container-logo">
+                {mobileView && (
+                    <IconButton
+                        aria-label="Menu"
+                        aria-haspopup={true}
+                        edge="start"
+                        onClick={() => setMenuIsOpen(true)}
+                    >
+                        <MenuIcon />
+                    </IconButton>
+                )}
+
+                <img
+                    src={logo}
+                    alt="Logo eMilitar"
+                />
+            </Box>
+
+            <LoadingMenu
+                isLoading={isLoadingUser}
+                hasError={hasErrorUser}
+                onPress={getUser}
+            />
+
+            {mobileView ? displayMobile() : displayDesktop()}
         </MenuContainer>
     )
 }

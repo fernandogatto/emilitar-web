@@ -12,9 +12,31 @@ export const MenuContainer = withTheme(styled.div`
     flex-direction: column;
     align-items: center;
 
-    img {
-        height: 70px;
+    @media(max-width: 768px) {
+        height: auto;
+        width: 100%;
+        padding: 20px 30px;
+        -webkit-box-shadow: 0px 3px 23px 2px rgb(0 0 0 / .1);
+        box-shadow: 0px 3px 23px 2px rgb(0 0 0 / .1);
+    }
+
+    .container-logo {
         margin-bottom: 32px;
+
+        @media(max-width: 768px) {
+            margin-bottom: 0;
+            width: 100%;
+            display: flex;
+        }
+
+        img {
+            height: 70px;
+
+            @media(max-width: 768px) {
+                margin: auto;
+                height: 45px;
+            }
+        }
     }
 
     nav {

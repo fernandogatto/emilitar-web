@@ -42,9 +42,6 @@ export const DialogTitleContainer = withTheme(styled.div`
 `);
 
 export const DialogContentContainer = withTheme(styled.div`
-    min-width: 400px;
-    width: 100%;
-
     p {
         color: ${props => props.theme.palette.description.secondary.light};
     }

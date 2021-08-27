@@ -47,6 +47,15 @@ export default createGlobalStyle`
             "main sidebar"
             "footer sidebar";
 
+        @media(max-width: 767px) {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "header"
+                "sidebar"
+                "main"
+                "footer";
+        }
+
         .item-header {
             grid-area: header;
         }
@@ -81,6 +90,44 @@ export default createGlobalStyle`
 
         h1 {
             margin-top: 16px;
+        }
+    }
+
+    /* Menu */
+
+    .MuiPaper-root {
+        padding: 0 15px;
+
+        nav {
+            display: flex;
+            flex-direction: column;
+
+            a {
+                display: flex;
+                align-items: center;
+                text-transform: uppercase;
+                font-size: 14px;
+
+                + a {
+                    margin-top: 8px;
+                }
+
+                &.active {
+                    color: #13B0FC;
+                }
+
+                svg {
+                    margin-right: 8px;
+                }
+            }
+        }
+
+        .logoff {
+            margin-top: auto;
+            margin-right: auto;
+            padding-left: 16px;
+            justify-content: flex-start;
+            font-size: 14px;
         }
     }
 

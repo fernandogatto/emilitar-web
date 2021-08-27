@@ -8,6 +8,10 @@ export const ContainerCreateEditPoints = withTheme(styled.div`
     overflow: hidden;
     display: flex;
 
+    @media(max-width: 768px) {
+        flex-direction: column;
+    }
+
     .container-page {
         flex: 1;
         overflow-x: hidden;
