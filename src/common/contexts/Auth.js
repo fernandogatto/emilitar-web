@@ -37,7 +37,7 @@ const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         getUser();
-    }, []);
+    }, [authData]);
 
     const getUser = async () => {
         try {
@@ -74,6 +74,7 @@ const AuthProvider = ({ children }) => {
                 isLoadingUser: IsLoadingUser,
                 hasErrorUser: HasErrorUser,
                 user: User,
+                getUser,
                 signIn,
                 signOut,
             }}

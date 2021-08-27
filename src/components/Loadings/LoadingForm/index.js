@@ -31,70 +31,42 @@ const LoadingForm = ({ isLoading, hasError, onPress }) => {
 
             {isLoading && (
                 <>
-                    <Box className="container-box">
-                        <Box className="item-box">
-                            <Box className="section-form">
-                                <Box className="subtitle">
-                                    <Skeleton animation="wave" variant="rect" className="skeleton" />
-                                </Box>
-
-                                <Box className="input">
-                                    <Skeleton animation="wave" variant="rect" className="skeleton" />
-                                </Box>
-
-                                <Box className="input">
-                                    <Skeleton animation="wave" variant="rect" className="skeleton" />
-                                </Box>
+                    <Box className="container-section container-flex">
+                        <Box className="item-flex">
+                            <Box className="input">
+                                <Skeleton animation="wave" variant="rect" className="skeleton" />
                             </Box>
 
-                            <Box className="section-form">
-                                <Box className="subtitle">
-                                    <Skeleton animation="wave" variant="rect" className="skeleton" />
-                                </Box>
+                            <Box className="input">
+                                <Skeleton animation="wave" variant="rect" className="skeleton" />
+                            </Box>
 
-                                <Box className="input">
-                                    <Skeleton animation="wave" variant="rect" className="skeleton" />
-                                </Box>
-
-                                <Box className="input">
-                                    <Skeleton animation="wave" variant="rect" className="skeleton" />
-                                </Box>
+                            <Box className="input">
+                                <Skeleton animation="wave" variant="rect" className="skeleton" />
                             </Box>
                         </Box>
 
-                        <Box className="item-box">
-                            <Box className="section-form">
-                                <Box className="subtitle">
-                                    <Skeleton animation="wave" variant="rect" className="skeleton" />
-                                </Box>
-
-                                <Box className="input">
-                                    <Skeleton animation="wave" variant="rect" className="skeleton" />
-                                </Box>
-
-                                <Box className="input">
-                                    <Skeleton animation="wave" variant="rect" className="skeleton" />
-                                </Box>
+                        <Box className="item-flex">
+                            <Box className="input">
+                                <Skeleton animation="wave" variant="rect" className="skeleton" />
                             </Box>
 
-                            <Box className="section-form">
-                                <Box className="subtitle">
-                                    <Skeleton animation="wave" variant="rect" className="skeleton" />
-                                </Box>
+                            <Box className="input">
+                                <Skeleton animation="wave" variant="rect" className="skeleton" />
+                            </Box>
 
-                                <Box className="input">
-                                    <Skeleton animation="wave" variant="rect" className="skeleton" />
-                                </Box>
-
-                                <Box className="input">
-                                    <Skeleton animation="wave" variant="rect" className="skeleton" />
-                                </Box>
+                            <Box className="input">
+                                <Skeleton animation="wave" variant="rect" className="skeleton" />
                             </Box>
                         </Box>
                     </Box>
 
                     <Box className="grid-button">
-                        <Skeleton animation="wave" variant="rect" className="skeleton" />
+                        <Skeleton
+                            animation="wave"
+                            variant="rect"
+                            className="skeleton"
+                        />
                     </Box>
                 </>
             )}

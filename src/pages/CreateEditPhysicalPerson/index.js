@@ -20,104 +20,237 @@ import {
     CircularProgress,
 } from '@material-ui/core';
 
-import { ArrowBack, Delete } from '@material-ui/icons';
+import { ArrowBack, StarRateSharp } from '@material-ui/icons';
+
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 import {
     ContainerCreateEditPoints,
     ContentCreateEditPoints,
-    SelectedItem,
 } from './styles';
+
+import { useAuth } from '../../common/contexts/Auth';
 
 import Menu from '../../components/Menu';
 
-import CheckboxDialog from '../../components/Dialogs/CheckboxDialog';
-
-import ConfirmDialog from '../../components/Dialogs/ConfirmDialog';
-
-import ListaStatusDeposito from '../../common/schemas/StatusPoint';
+import LoadingForm from '../../components/Loadings/LoadingForm';
 
 import ListaEstados from '../../common/schemas/Estados';
 
 import ListaCidades from '../../common/schemas/Cidades';
 
+import { validateCPF, validateEmail } from '../../common/helpers/validations';
+
 import PhysicalPersonOperations from '../../common/rules/PhysicalPerson/PhysicalPersonOperations';
 
-const CreateEditPhysicalPerson = () => {
+import CityOperations from '../../common/rules/City/CityOperations';
+
+const CreateEditPhysicalPerson = ({ match }) => {
+    const { id } = match.params;
+
     const dispatch = useDispatch();
 
     const history = useHistory();
 
+    const { isLoadingUser, hasErrorUser, user, getUser } = useAuth();
+
     const [inputTextData, setInputTextData] = useState({
-        descricao: '',
+        nome: '',
+        sobrenome: '',
+        cpf: '',
+        telefone: '',
         emailContato: '',
-        telefoneContato: '',
+        nomeAlternativo: '',
         cep: '',
+        logradouro: '',
+        numero: 0,
+        complemento: '',
+        bairro: '',
     });
 
     const [inputSelectData, setInputSelectData] = useState({
-        estabelecimento: '',
-        statusPonto: '',
         estado: '',
-        cidade: '',
+        municipio: '',
+        escolaridade: '',
+        estadoCivil: '',
+        tipoSanguineo: '',
     });
 
     const [inputError, setInputError] = useState({
-        estabelecimento: false,
-        descricao: false,
+        nome: false,
+        sobrenome: false,
+        cpf: false,
+        cpfInvalido: false,
+        telefone: false,
+        telefoneInvalido: false,
         emailContato: false,
-        telefoneContato: false,
-        tamanhoTelefone: false,
-        statusPonto: false,
+        emailInvalido: false,
+        escolaridade: false,
+        estadoCivil: false,
+        tipoSanguineo: false,
         cep: false,
         estado: false,
-        cidade: false,
-        selectedMaterials: false,
+        municipio: false,
+        logradouro: false,
+        numero: false,
     });
 
-    const [establishments, setEstablishments] = useState([]);
+    const [isLoadingPhysicalPerson, setIsLoadingPhysicalPerson] = useState(false);
 
-    const [isLoadingEstablishments, setIsLoadingEstablishments] = useState(false);
+    const [hasErrorPhysicalPerson, setHasErrorPhysicalPerson] = useState(false);
 
-    const [hasErrorEstablishments, setHasErrorEstablishments] = useState(false);
+    const [physicalPerson, setPhysicalPerson] = useState({});
 
-    const [materials, setMaterials] = useState([]);
+    const [isLoadingOptions, setIsLoadingOptions] = useState(true);
 
-    const [isLoadingMaterials, setIsLoadingMaterials] = useState(false);
+    const [hasErrorOptions, setHasErrorOptions] = useState(false);
 
-    const [hasErrorMaterials, setHasErrorMaterials] = useState(false);
+    const [schooling, setSchooling] = useState([]);
 
-    const [selectedMaterials, setSelectedMaterials] = useState([]);
+    const [civilStatus, setCivilStatus] = useState([]);
 
-    const [deletedMaterial, setDeletedMaterial] = useState(null);
+    const [bloodTypes, setBloodTypes] = useState([]);
 
-    const [selectedFile, setSelectedFile] = useState();
-
-    const [preview, setPreview] = useState('');
+    const [city, setCity] = useState({});
 
     const [isSubmiting, setIsSubmiting] = useState(false);
 
     const [isUpdate, setIsUpdate] = useState(false);
 
-    const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+    const [alertIsOpen, setAlertIsOpen] = useState(true);
 
-    const getMaterials = async () => {
-        try {
-            setIsLoadingMaterials(true);
+    useEffect(() => {
+        getOptions();
 
-            setHasErrorMaterials(false);
-
-            // const response = await dispatch();
-
-            setIsLoadingMaterials(false);
-
-            // setMaterials(response);
-        } catch (err) {
-            console.log('getMaterials', err);
-
-            setIsLoadingMaterials(false);
-
-            setHasErrorMaterials(true);
+        if (id) {
+            getPhysicalPerson();
         }
+    }, []);
+
+    const getOptions = async () => {
+        try {
+            setIsLoadingOptions(true);
+
+            setHasErrorOptions(false);
+
+            const response = await dispatch(PhysicalPersonOperations
+                .getOptions());
+
+            setIsLoadingOptions(false);
+
+            setSchooling(response.escolaridades);
+
+            setCivilStatus(response.estadosCivil);
+
+            setBloodTypes(response.tiposSanguineos);
+        } catch (err) {
+            console.log('getOptions', err);
+
+            setIsLoadingOptions(false);
+
+            setHasErrorOptions(true);
+        }
+    }
+
+    const getPhysicalPerson = async () => {
+        try {
+            setIsUpdate(true);
+
+            setIsLoadingPhysicalPerson(true);
+
+            setHasErrorPhysicalPerson(false);
+
+            const response = await dispatch(PhysicalPersonOperations
+                .getPhysicalPersonById(id));
+
+            setIsLoadingPhysicalPerson(false);
+
+            setInputTextData({
+                nome: response.nome,
+                sobrenome: response.sobrenome,
+                cpf: response.cpf,
+                telefone: response.telefone,
+                emailContato: response.emailContato,
+                nomeAlternativo: response.endereco.nomeAlternativo,
+                cep: response.endereco.cep,
+                logradouro: response.endereco.logradouro,
+                numero: response.endereco.numero,
+                complemento: response.endereco.complemento,
+                bairro: response.endereco.bairro,
+            });
+
+            setInputSelectData({
+                estado: response.endereco.municipio.codigoEstado,
+                municipio: response.endereco.municipio.nome,
+                escolaridade: response.escolaridade.id,
+                estadoCivil: response.estadoCivil.id,
+                tipoSanguineo: response.tipoSanguineo.id
+            });
+
+            setPhysicalPerson(response);
+        } catch (err) {
+            console.log('getPhysicalPerson', err);
+
+            setIsLoadingPhysicalPerson(false);
+
+            setHasErrorPhysicalPerson(true);
+        }
+    }
+
+    useEffect(() => {
+        if (
+            !isUpdate &&
+            !isLoadingUser &&
+            !hasErrorUser &&
+            user &&
+            user.nome !== ''
+        ) {
+            setUserState();
+
+            handleStateChange();
+        }
+    }, [user]);
+
+    const setUserState = () => {
+        const name = 'estado';
+
+        setInputSelectData({ ...inputSelectData, [name]: user.codigoEstado });
+    }
+
+    const handleStateChange = async () => {
+        try {
+            const response = await dispatch(CityOperations
+                .getCitiesByState(user.codigoEstado));
+
+            handleCityChange(response);
+        } catch (err) {
+            console.log('handleCityChange', err);
+        }
+    }
+
+    const handleCityChange = (values) => {
+        const _city = values.find(item => item.nome === user.municipio);
+
+        setCity(_city);
+    }
+
+    useEffect(() => {
+        if (
+            !isUpdate &&
+            !isLoadingUser &&
+            !hasErrorUser &&
+            user &&
+            user.nome !== '' &&
+            inputSelectData.estado !== ''
+        ) {
+            setUserCity();
+        }
+    }, [inputSelectData.estado]);
+
+    const setUserCity = () => {
+        const name = 'municipio';
+
+        setInputSelectData({ ...inputSelectData, [name]: user.municipio });
     }
 
     const handleInputTextChange = (event) => {
@@ -143,7 +276,25 @@ const CreateEditPhysicalPerson = () => {
                     if(response && response.cep !== '') {
                         setInputSelectData({
                             estado: response.uf,
-                            cidade: response.localidade,
+                            municipio: response.localidade,
+                            escolaridade: inputSelectData.escolaridade,
+                            estadoCivil: inputSelectData.estadoCivil,
+                            tipoSanguineo: inputSelectData.tipoSanguineo,
+                            statusAlistamento: inputSelectData.statusAlistamento,
+                        });
+
+                        setInputTextData({
+                            nome: inputTextData.nome,
+                            sobrenome: inputTextData.sobrenome,
+                            cpf: inputTextData.cpf,
+                            telefone: inputTextData.telefone,
+                            emailContato: inputTextData.emailContato,
+                            nomeAlternativo: inputTextData.nomeAlternativo,
+                            cep: response.cep,
+                            logradouro: response.logradouro,
+                            numero: response.numero,
+                            complemento: response.complemento,
+                            bairro: response.bairro,
                         });
                     }
             } catch (err) {
@@ -152,68 +303,121 @@ const CreateEditPhysicalPerson = () => {
         }
     }
 
-    const handleConfirmDeleteMaterial = (index) => {
-        setDeletedMaterial(index);
+    const handleEmailChange = (event) => {
+        const { value } = event.target;
 
-        setOpenConfirmDialog(true);
+        const name = 'emailInvalido';
+
+        const isValid = validateEmail(value);
+
+        if (!isValid) {
+            setInputError({ ...inputError, [name]: true });
+        } else {
+            setInputError({ ...inputError, [name]: false });
+        }
     }
 
-    const handleDeleteMaterial = (index) => {
-        let _items = [...selectedMaterials];
+    const handleCpfChange = (event) => {
+        const { value } = event.target;
 
-        _items.splice(index, 1);
+        const name = 'cpfInvalido';
 
-        setSelectedMaterials(_items);
+        const isValid = validateCPF(value);
 
-        setDeletedMaterial(null);
+        if (!isValid) {
+            setInputError({ ...inputError, [name]: true });
+        } else {
+            setInputError({ ...inputError, [name]: false });
+        }
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         try {
             const {
-                descricao,
+                nome,
+                sobrenome,
+                cpf,
+                telefone,
                 emailContato,
-                telefoneContato,
+                nomeAlternativo,
                 cep,
+                logradouro,
+                numero,
+                complemento,
+                bairro,
             } = inputTextData;
 
             const {
-                estabelecimento,
-                statusPonto,
                 estado,
-                cidade,
+                municipio,
+                escolaridade,
+                estadoCivil,
+                tipoSanguineo,
             } = inputSelectData;
 
             setInputError({
-                estabelecimento: estabelecimento === '' ? true : false,
-                descricao: descricao === '' ? true : false,
+                nome: nome === '' ? true : false,
+                sobrenome: sobrenome === '' ? true : false,
+                cpf: cpf === '' ? true : false,
+                telefone: telefone === '' ? true : false,
                 emailContato: emailContato === '' ? true : false,
-                telefoneContato: telefoneContato === '' ? true : false,
-                tamanhoTelefone: telefoneContato.length < 14 ? true : false,
-                statusPonto: statusPonto === '' ? true : false,
+                escolaridade: escolaridade === '' ? true : false,
+                estadoCivil: estadoCivil === '' ? true : false,
+                tipoSanguineo: tipoSanguineo === '' ? true : false,
                 cep: cep === '' ? true : false,
                 estado: estado === '' ? true : false,
-                cidade: cidade === '' ? true : false,
-                selectedMaterials: selectedMaterials.length === 0 ? true : false,
+                municipio: municipio === '' ? true : false,
+                logradouro: logradouro === '' ? true : false,
+                numero: (numero === 0 || numero < 0) ? true : false,
             });
 
             if (
-                estabelecimento !== '' &&
-                descricao !== '' &&
+                nome !== '' &&
+                sobrenome !== '' &&
+                cpf !== '' &&
+                !inputError.cpfInvalido &&
+                telefone !== '' &&
+                !inputError.telefoneInvalido &&
                 emailContato !== '' &&
-                telefoneContato !== '' &&
-                !inputError.tamanhoTelefone < 14 &&
-                statusPonto !== '' &&
+                !inputError.emailInvalido &&
+                escolaridade !== '' &&
+                estadoCivil !== '' &&
+                tipoSanguineo !== '' &&
                 cep !== '' &&
                 estado !== '' &&
-                cidade !== '' &&
-                selectedMaterials.length > 0
+                municipio !== '' &&
+                logradouro !== '' &&
+                numero > 0
             ) {
+                const data = {
+                    nome,
+                    sobrenome,
+                    cpf: cpf.replace(/[^0-9]+/g, ''),
+                    telefone: telefone.replace(/[^0-9]+/g, ''),
+                    emailContato,
+                    endereco: {
+                        nomeAlternativo,
+                        cep: cep.replace(/[^0-9]+/g, ''),
+                        logradouro,
+                        numero: Number(numero),
+                        complemento,
+                        bairro,
+                        municipio: city,
+                    },
+                    escolaridade: schooling.find(item => item.id === escolaridade),
+                    estadoCivil: civilStatus.find(item => item.id === estadoCivil),
+                    tipoSanguineo: bloodTypes.find(item => item.id === tipoSanguineo),
+                };
+
                 setIsSubmiting(true);
+
+                isUpdate
+                    ? await dispatch(PhysicalPersonOperations.updatePhysicalPersonById(id, data))
+                    : await dispatch(PhysicalPersonOperations.createPhysicalPerson(data));
 
                 setIsSubmiting(false);
 
-                // history.goBack();
+                history.goBack();
             }
         } catch (err) {
             console.log('handleSubmit', err);
@@ -225,22 +429,6 @@ const CreateEditPhysicalPerson = () => {
     return (
         <ContainerCreateEditPoints>
             <Menu />
-
-            <ConfirmDialog
-                dialogOpen={openConfirmDialog}
-                handleCloseDialog={(event, reason) => {
-                    setDeletedMaterial(null);
-
-                    setOpenConfirmDialog(false);
-                }}
-                handleConfirmAction={() => {
-                    handleDeleteMaterial(deletedMaterial);
-
-                    setOpenConfirmDialog(false);
-                }}
-                title="Excluir Material"
-                message="Tem certeza que deseja excluir este item?"
-            />
 
             <Box className="container-page">
                 <ContentCreateEditPoints>
@@ -255,309 +443,451 @@ const CreateEditPhysicalPerson = () => {
                             </IconButton>
                         </Tooltip>
 
-                        <h1>{isUpdate ? 'Editar': 'Cadastrar'} ponto de coleta</h1>
+                        <h1>{isUpdate ? 'Editar': 'Cadastrar'} pessoa física</h1>
                     </Box>
 
-                    <Box className="container-form">
-                        <Box className="container-section container-flex">
-                            <Box className="item-flex">
-                                <FormControl
-                                    required
-                                    error={inputError.estabelecimento}
-                                    variant="outlined"
-                                    fullWidth
-                                    className="input"
-                                >
-                                    <InputLabel htmlFor="estabelecimento">
-                                        Estabelecimento
-                                    </InputLabel>
+                    <LoadingForm
+                        isLoading={isLoadingPhysicalPerson}
+                        hasError={hasErrorPhysicalPerson}
+                        onPress={getPhysicalPerson}
+                    />
 
-                                    <Select
-                                        value={inputSelectData.estado}
-                                        onChange={handleSelectChange}
-                                        label="Estabelecimento"
-                                        name="estabelecimento"
-                                        disabled={isSubmiting}
-                                    >
-                                        {establishments && establishments.length > 0 && establishments.map(item => (
-                                            <MenuItem
-                                                key={item.id}
-                                                value={item.nome}
+                    {(!isUpdate ||
+                        (!isLoadingPhysicalPerson &&
+                            !hasErrorPhysicalPerson &&
+                            physicalPerson &&
+                            physicalPerson.nome !== '')) && (
+                                <Box className="container-form">
+                                    <Box className="container-section container-flex">
+                                        <Box className="item-flex">
+                                            <TextField
+                                                required
+                                                error={inputError.nome}
+                                                variant="outlined"
+                                                type="text"
+                                                name="nome"
+                                                label="Nome"
+                                                fullWidth
+                                                value={inputTextData.nome}
+                                                onChange={handleInputTextChange}
+                                                disabled={isSubmiting}
+                                                className="input"
+                                                helperText={inputError.nome && 'Campo obrigatório'}
+                                            />
+
+                                            <TextField
+                                                required
+                                                error={inputError.sobrenome}
+                                                variant="outlined"
+                                                type="text"
+                                                name="sobrenome"
+                                                label="Sobrenome"
+                                                fullWidth
+                                                value={inputTextData.sobrenome}
+                                                onChange={handleInputTextChange}
+                                                disabled={isSubmiting}
+                                                className="input"
+                                                helperText={inputError.sobrenome && 'Campo obrigatório'}
+                                            />
+
+                                            <InputMask
+                                                mask="999.999.999-99"
+                                                maskChar=""
+                                                fullWidth
+                                                value={inputTextData.cpf}
+                                                onChange={(event) => {
+                                                    handleInputTextChange(event);
+
+                                                    handleCpfChange(event);
+                                                }}
+                                                disabled={isSubmiting}
                                             >
-                                                {item.nome}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
+                                                {() => (
+                                                    <TextField
+                                                        required
+                                                        error={inputError.cpf || inputError.cpfInvalido}
+                                                        variant="outlined"
+                                                        type="tel"
+                                                        label="CPF"
+                                                        name="cpf"
+                                                        fullWidth
+                                                        className="input"
+                                                        helperText={
+                                                            (inputError.cpf && 'Campo obrigatório') ||
+                                                            (inputError.cpfInvalido && 'CPF inválido')
+                                                        }
+                                                    />
+                                                )}
+                                            </InputMask>
 
-                                    {inputError.estado && (
-                                        <FormHelperText>
-                                            Campo obrigatório
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-
-                                <TextField
-                                    required
-                                    error={inputError.descricao}
-                                    multiline
-                                    minRows={5}
-                                    maxRows={5}
-                                    variant="outlined"
-                                    type="text"
-                                    name="descricao"
-                                    label="Descrição"
-                                    fullWidth
-                                    value={inputTextData.descricao}
-                                    onChange={handleInputTextChange}
-                                    disabled={isSubmiting}
-                                    className="input"
-                                    helperText={inputError.descricao && 'Campo obrigatório'}
-                                />
-
-                                <TextField
-                                    required
-                                    error={inputError.emailContato}
-                                    variant="outlined"
-                                    type="email"
-                                    name="emailContato"
-                                    label="E-mail de contato"
-                                    fullWidth
-                                    value={inputTextData.emailContato}
-                                    onChange={handleInputTextChange}
-                                    disabled={isSubmiting}
-                                    className="input"
-                                    helperText={inputError.emailContato && 'Campo obrigatório'}
-                                />
-
-                                <InputMask
-                                    mask={inputTextData.telefoneContato.length > 14 ? "(99) 99999-9999" : "(99) 9999-99999"}
-                                    maskChar=""
-                                    fullWidth
-                                    value={inputTextData.telefoneContato}
-                                    onChange={handleInputTextChange}
-                                    disabled={isSubmiting}
-                                >
-                                    {() => (
-                                        <TextField
-                                            required
-                                            error={inputError.telefoneContato || inputError.tamanhoTelefone}
-                                            variant="outlined"
-                                            type="tel"
-                                            label="Telefone de contato"
-                                            name="telefoneContato"
-                                            fullWidth
-                                            className="input"
-                                            helperText={
-                                                (inputError.telefoneContato && 'Campo obrigatório') ||
-                                                (inputError.tamanhoTelefone && 'Telefone inválido')
-                                            }
-                                        />
-                                    )}
-                                </InputMask>
-
-                                <FormControl
-                                    required
-                                    error={inputError.statusPonto}
-                                    variant="outlined"
-                                    fullWidth
-                                    className="input"
-                                >
-                                    <InputLabel htmlFor="statusPonto">
-                                        Status
-                                    </InputLabel>
-
-                                    <Select
-                                        value={inputSelectData.statusPonto}
-                                        onChange={handleSelectChange}
-                                        label="Status"
-                                        name="statusPonto"
-                                        disabled={isSubmiting}
-                                    >
-                                        {Object.keys(ListaStatusDeposito).map(key => (
-                                            <MenuItem
-                                                key={key}
-                                                value={key}
+                                            <InputMask
+                                                mask={inputTextData.telefone.length > 14 ? "(99) 99999-9999" : "(99) 9999-99999"}
+                                                maskChar=""
+                                                fullWidth
+                                                value={inputTextData.telefone}
+                                                onChange={handleInputTextChange}
+                                                disabled={isSubmiting}
                                             >
-                                                {ListaStatusDeposito[key]}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
+                                                {() => (
+                                                    <TextField
+                                                        required
+                                                        error={inputError.telefone || inputError.telefoneInvalido}
+                                                        variant="outlined"
+                                                        type="tel"
+                                                        label="Telefone de contato"
+                                                        name="telefone"
+                                                        fullWidth
+                                                        className="input"
+                                                        helperText={
+                                                            (inputError.telefone && 'Campo obrigatório') ||
+                                                            (inputError.telefoneInvalido && 'Telefone inválido')
+                                                        }
+                                                    />
+                                                )}
+                                            </InputMask>
 
-                                    {inputError.statusPonto && (
-                                        <FormHelperText>
-                                            Campo obrigatório
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                            </Box>
+                                            <TextField
+                                                required
+                                                error={inputError.emailContato || inputError.emailInvalido}
+                                                variant="outlined"
+                                                type="email"
+                                                name="emailContato"
+                                                label="E-mail de contato"
+                                                fullWidth
+                                                value={inputTextData.emailContato}
+                                                onChange={(event) => {
+                                                    handleInputTextChange(event);
 
-                            <Box className="item-flex">
-                                <InputMask
-                                    mask="99999-999"
-                                    maskChar=""
-                                    fullWidth
-                                    value={inputTextData.cep}
-                                    onChange={(event) => {
-                                        handleInputTextChange(event);
+                                                    handleEmailChange(event);
+                                                }}
+                                                disabled={isSubmiting}
+                                                className="input"
+                                                helperText={
+                                                    (inputError.emailContato && 'Campo obrigatório') ||
+                                                    (inputError.emailInvalido && 'E-mail inválido')
+                                                }
+                                            />
 
-                                        handleCepChange(event);
-                                    }}
-                                    disabled={isSubmiting}
-                                >
-                                    {() => (
-                                        <TextField
-                                            required
-                                            error={inputError.cep}
-                                            variant="outlined"
-                                            type="tel"
-                                            label="CEP"
-                                            name="cep"
-                                            fullWidth
-                                            className="input"
-                                            helperText={inputError.cep && 'Campo obrigatório'}
-                                        />
-                                    )}
-                                </InputMask>
-
-                                <FormControl
-                                    required
-                                    error={inputError.estado}
-                                    variant="outlined"
-                                    fullWidth
-                                    className="input"
-                                >
-                                    <InputLabel htmlFor="estado">
-                                        Estado
-                                    </InputLabel>
-
-                                    <Select
-                                        value={inputSelectData.estado}
-                                        onChange={handleSelectChange}
-                                        label="Estado"
-                                        name="estado"
-                                        disabled={isSubmiting}
-                                    >
-                                        {Object.keys(ListaEstados).map(key => (
-                                            <MenuItem
-                                                key={key}
-                                                value={key}
+                                            <FormControl
+                                                required
+                                                error={inputError.escolaridade}
+                                                variant="outlined"
+                                                fullWidth
+                                                className="input"
                                             >
-                                                {ListaEstados[key]}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
+                                                <InputLabel htmlFor="escolaridade">
+                                                    Escolaridade
+                                                </InputLabel>
 
-                                    {inputError.estado && (
-                                        <FormHelperText>
-                                            Campo obrigatório
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-
-                                <FormControl
-                                    required
-                                    error={inputError.cidade}
-                                    variant="outlined"
-                                    fullWidth
-                                    className="input"
-                                >
-                                    <InputLabel htmlFor="cidade">
-                                        Cidade
-                                    </InputLabel>
-
-                                    <Select
-                                        value={inputSelectData.cidade}
-                                        onChange={handleSelectChange}
-                                        label="Cidade"
-                                        name="cidade"
-                                        disabled={isSubmiting}
-                                    >
-                                        {inputSelectData.estado &&
-                                            ListaCidades[inputSelectData.estado] &&
-                                            ListaCidades[inputSelectData.estado].map(key => (
-                                                <MenuItem
-                                                    key={key}
-                                                    value={key}
+                                                <Select
+                                                    value={inputSelectData.escolaridade}
+                                                    onChange={handleSelectChange}
+                                                    label="Escolaridade"
+                                                    name="escolaridade"
+                                                    disabled={isSubmiting}
                                                 >
-                                                    {key}
-                                                </MenuItem>
-                                        ))}
-                                    </Select>
+                                                    {schooling && schooling.length > 0 && schooling.map(item => (
+                                                        <MenuItem
+                                                            key={item.id}
+                                                            value={item.id}
+                                                        >
+                                                            {item.valor}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
 
-                                    {inputError.cidade && (
-                                        <FormHelperText>
-                                            Campo obrigatório
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                            </Box>
-                        </Box>
+                                                {inputError.escolaridade && (
+                                                    <FormHelperText>
+                                                        Campo obrigatório
+                                                    </FormHelperText>
+                                                )}
+                                            </FormControl>
 
-                        <Box className="container-section">
-                            <h2>Endereço</h2>
+                                            <FormControl
+                                                required
+                                                error={inputError.estadoCivil}
+                                                variant="outlined"
+                                                fullWidth
+                                                className="input"
+                                            >
+                                                <InputLabel htmlFor="estadoCivil">
+                                                    Estado civil
+                                                </InputLabel>
 
-                        </Box>
+                                                <Select
+                                                    value={inputSelectData.estadoCivil}
+                                                    onChange={handleSelectChange}
+                                                    label="Estado civil"
+                                                    name="estadoCivil"
+                                                    disabled={isSubmiting}
+                                                >
+                                                    {civilStatus && civilStatus.length > 0 && civilStatus.map(item => (
+                                                        <MenuItem
+                                                            key={item.id}
+                                                            value={item.id}
+                                                        >
+                                                            {item.valor}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
 
-                        <CheckboxDialog
-                            titleSection="Materiais"
-                            hideAdd={false}
-                            error={inputError.selectedMaterials}
-                            messageError="Selecione o material *"
-                            closeError={() => setInputError({
-                                ...inputError,
-                                ['selectedMaterials']: false,
-                            })}
-                            selectedArray={selectedMaterials}
-                            setSelectedArray={setSelectedMaterials}
-                            isLoading={isLoadingMaterials}
-                            hasError={hasErrorMaterials}
-                            onPress={getMaterials}
-                            array={materials}
-                            title="Selecionar Material"
-                            confirm="Salvar"
-                        />
+                                                {inputError.estadoCivil && (
+                                                    <FormHelperText>
+                                                        Campo obrigatório
+                                                    </FormHelperText>
+                                                )}
+                                            </FormControl>
 
-                        <Box className="container-section">
-                            {materials && materials.length > 0 && selectedMaterials && selectedMaterials.length > 0 && selectedMaterials.map((item, index) => (
-                                <SelectedItem key={item.id}>
-                                    <Box className="item-title">
-                                        <p>{materials.find(value => value.id === item.id).nome}</p>
+                                            <FormControl
+                                                required
+                                                error={inputError.tipoSanguineo}
+                                                variant="outlined"
+                                                fullWidth
+                                                className="input"
+                                            >
+                                                <InputLabel htmlFor="tipoSanguineo">
+                                                    Tipo sanguíneo
+                                                </InputLabel>
+
+                                                <Select
+                                                    value={inputSelectData.tipoSanguineo}
+                                                    onChange={handleSelectChange}
+                                                    label="Tipo sanguíneo"
+                                                    name="tipoSanguineo"
+                                                    disabled={isSubmiting}
+                                                >
+                                                    {bloodTypes && bloodTypes.length > 0 && bloodTypes.map(item => (
+                                                        <MenuItem
+                                                            key={item.id}
+                                                            value={item.id}
+                                                        >
+                                                            {item.valor}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+
+                                                {inputError.tipoSanguineo && (
+                                                    <FormHelperText>
+                                                        Campo obrigatório
+                                                    </FormHelperText>
+                                                )}
+                                            </FormControl>
+                                        </Box>
+
+                                        <Box className="item-flex">
+                                            <InputMask
+                                                mask="99999-999"
+                                                maskChar=""
+                                                fullWidth
+                                                value={inputTextData.cep}
+                                                onChange={(event) => {
+                                                    handleInputTextChange(event);
+
+                                                    handleCepChange(event);
+                                                }}
+                                                disabled={isSubmiting}
+                                            >
+                                                {() => (
+                                                    <TextField
+                                                        required
+                                                        error={inputError.cep}
+                                                        variant="outlined"
+                                                        type="tel"
+                                                        label="CEP"
+                                                        name="cep"
+                                                        fullWidth
+                                                        className="input"
+                                                        helperText={inputError.cep && 'Campo obrigatório'}
+                                                    />
+                                                )}
+                                            </InputMask>
+
+                                            {alertIsOpen && (
+                                                <Alert
+                                                    severity="info"
+                                                    className="input"
+                                                    style={{
+                                                        height: 128,
+                                                    }}
+                                                >
+                                                    <AlertTitle>
+                                                        Atenção!
+                                                    </AlertTitle>
+
+                                                    <p>Só é permitido cadastrar pessoas no município em que você atua.</p>
+
+                                                    <Box
+                                                        style={{ display: 'flex', justifyContent: 'flex-end'}}
+                                                    >
+                                                        <Button
+                                                            size="small"
+                                                            disabled={isSubmiting}
+                                                            onClick={() => setAlertIsOpen(false)}
+                                                        >
+                                                            Fechar
+                                                        </Button>
+                                                    </Box>
+                                                </Alert>
+                                            )}
+
+                                            <FormControl
+                                                required
+                                                error={inputError.estado}
+                                                variant="outlined"
+                                                fullWidth
+                                                className="input"
+                                            >
+                                                <InputLabel htmlFor="estado">
+                                                    Estado
+                                                </InputLabel>
+
+                                                <Select
+                                                    value={inputSelectData.estado}
+                                                    onChange={handleSelectChange}
+                                                    label="Estado"
+                                                    name="estado"
+                                                    disabled={isSubmiting || user.codigoEstado !== ''}
+                                                >
+                                                    {Object.keys(ListaEstados).map(key => (
+                                                        <MenuItem
+                                                            key={key}
+                                                            value={key}
+                                                        >
+                                                            {ListaEstados[key]}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+
+                                                {inputError.estado && (
+                                                    <FormHelperText>
+                                                        Campo obrigatório
+                                                    </FormHelperText>
+                                                )}
+                                            </FormControl>
+
+                                            <FormControl
+                                                required
+                                                error={inputError.municipio}
+                                                variant="outlined"
+                                                fullWidth
+                                                className="input"
+                                            >
+                                                <InputLabel htmlFor="municipio">
+                                                    Cidade
+                                                </InputLabel>
+
+                                                <Select
+                                                    value={inputSelectData.municipio}
+                                                    onChange={(event) => {
+                                                        handleSelectChange(event);
+
+                                                        handleCityChange(event);
+                                                    }}
+                                                    label="Cidade"
+                                                    name="municipio"
+                                                    disabled={isSubmiting || user.municipio !== ''}
+                                                >
+                                                    {inputSelectData.estado &&
+                                                        ListaCidades[inputSelectData.estado] &&
+                                                        ListaCidades[inputSelectData.estado].map(key => (
+                                                            <MenuItem
+                                                                key={key}
+                                                                value={key}
+                                                            >
+                                                                {key}
+                                                            </MenuItem>
+                                                    ))}
+                                                </Select>
+
+                                                {inputError.municipio && (
+                                                    <FormHelperText>
+                                                        Campo obrigatório
+                                                    </FormHelperText>
+                                                )}
+                                            </FormControl>
+
+                                            <TextField
+                                                required
+                                                error={inputError.logradouro}
+                                                variant="outlined"
+                                                type="text"
+                                                name="logradouro"
+                                                label="Logradouro"
+                                                fullWidth
+                                                value={inputTextData.logradouro}
+                                                onChange={handleInputTextChange}
+                                                disabled={isSubmiting}
+                                                className="input"
+                                                helperText={inputError.logradouro && 'Campo obrigatório'}
+                                            />
+
+                                            <TextField
+                                                required
+                                                error={inputError.numero}
+                                                variant="outlined"
+                                                type="number"
+                                                name="numero"
+                                                label="Número"
+                                                fullWidth
+                                                inputProps={{ min: 0 }}
+                                                min={0}
+                                                value={inputTextData.numero}
+                                                onChange={handleInputTextChange}
+                                                disabled={isSubmiting}
+                                                className="input"
+                                                helperText={inputError.numero && 'Campo obrigatório'}
+                                            />
+
+                                            <TextField
+                                                variant="outlined"
+                                                type="text"
+                                                name="complemento"
+                                                label="Complemento"
+                                                fullWidth
+                                                value={inputTextData.complemento}
+                                                onChange={handleInputTextChange}
+                                                disabled={isSubmiting}
+                                                className="input"
+                                            />
+
+                                            <TextField
+                                                variant="outlined"
+                                                type="text"
+                                                name="nomeAlternativo"
+                                                label="Nome alternativo"
+                                                fullWidth
+                                                value={inputTextData.nomeAlternativo}
+                                                onChange={handleInputTextChange}
+                                                disabled={isSubmiting}
+                                                className="input"
+                                            />
+                                        </Box>
                                     </Box>
 
-                                    <Box className="actions">
-                                        <Tooltip title="Excluir" arrow>
-                                            <IconButton onClick={() => handleConfirmDeleteMaterial(index)}>
-                                                <Delete />
-                                            </IconButton>
-                                        </Tooltip>
+                                    <Box className="grid-button">
+                                        <Box className="wrapper">
+                                            {isSubmiting && (
+                                                <CircularProgress
+                                                    className="circular-progress"
+                                                    style={{ width: 24, height: 24 }}
+                                                />
+                                            )}
+
+                                            <Button
+                                                aria-label="Submeter formulário"
+                                                type="submit"
+                                                variant="contained"
+                                                color="primary"
+                                                size="large"
+                                                disabled={isSubmiting}
+                                                onClick={handleSubmit}
+                                            >
+                                                {isUpdate ? 'Atualizar' : 'Salvar'}
+                                            </Button>
+                                        </Box>
                                     </Box>
-                                </SelectedItem>
-                            ))}
-                        </Box>
-
-                        <Box className="grid-button">
-                            <Box className="wrapper">
-                                {isSubmiting && (
-                                    <CircularProgress
-                                        className="circular-progress"
-                                        style={{ width: 24, height: 24 }}
-                                    />
-                                )}
-
-                                <Button
-                                    aria-label="Submeter formulário"
-                                    type="submit"
-                                    variant="contained"
-                                    color="primary"
-                                    size="large"
-                                    disabled={isSubmiting}
-                                    onClick={handleSubmit}
-                                >
-                                    {isUpdate ? 'Atualizar' : 'Salvar'}
-                                </Button>
-                            </Box>
-                        </Box>
-                    </Box>
+                                </Box>
+                    )}
                 </ContentCreateEditPoints>
             </Box>
         </ContainerCreateEditPoints>

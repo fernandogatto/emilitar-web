@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { NavLink } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
 
 import {
     Button,
@@ -14,15 +14,21 @@ import {
 
 import { MenuContainer } from './styles';
 
+import LoadingMenu from '../../components/Loadings/LoadingMenu';
+
 import logo from '../../assets/logo.png';
 
 import { useAuth } from '../../common/contexts/Auth';
 
 const Menu = () => {
-    const { isLoadingUser, hasErrorUser, user, signOut } = useAuth();
+    const history = useHistory();
+
+    const { isLoadingUser, hasErrorUser, user, getUser, signOut } = useAuth();
 
     const handleSignOut = () => {
         signOut();
+
+        history.push('/');
     }
 
     return (
@@ -32,18 +38,32 @@ const Menu = () => {
                 alt="Logo eMilitar"
             />
 
+            <LoadingMenu
+                isLoading={isLoadingUser}
+                hasError={hasErrorUser}
+                onPress={getUser}
+            />
+
             {!isLoadingUser && !hasErrorUser && user && user.usuario_id !== '' && (
                 <nav>
-                    <NavLink to="/status-do-alistamento" activeClassName="active">
+                    <NavLink
+                        to="/status-do-alistamento"
+                        activeClassName="active"
+                    >
                         <Timeline />
                         Status do Alistamento
                     </NavLink>
 
-                    {user.roles && user.roles.length > 0 && user.roles.includes('SERVIDOR') && (
-                        <NavLink to="/pessoas-fisicas" activeClassName="active">
-                            <Person />
-                            Pessoas Físicas
-                        </NavLink>
+                    {user.roles &&
+                        user.roles.length > 0 &&
+                        user.roles.includes('SERVIDOR') && (
+                            <NavLink
+                                to="/pessoas-fisicas"
+                                activeClassName="active"
+                            >
+                                <Person />
+                                Pessoas Físicas
+                            </NavLink>
                     )}
                 </nav>
             )}

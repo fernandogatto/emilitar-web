@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
+import { useDispatch } from 'react-redux';
 
 import { Link } from 'react-router-dom';
 
@@ -6,54 +8,102 @@ import {
     Box,
     Tooltip,
     IconButton,
-    FormControl,
-    InputLabel,
-    OutlinedInput,
-    InputAdornment,
-    Button,
-    CircularProgress,
 } from '@material-ui/core';
 
-import { Add, Search } from '@material-ui/icons';
-
-import Menu from '../../components/Menu';
+import { Add, Edit, Delete } from '@material-ui/icons';
 
 import {
     ContainerPoints,
     ContentPoints,
-    ContainerSearch,
+    ContainerPhysicalPersonCard,
 } from './styles';
 
+import Menu from '../../components/Menu';
+
+import ConfirmDialog from '../../components/Dialogs/ConfirmDialog';
+
+import LoadingCard from '../../components/Loadings/LoadingCard';
+
+import PhysicalPersonOperations from '../../common/rules/PhysicalPerson/PhysicalPersonOperations';
+
 const PhysicalPerson = () => {
-    const [inputTextData, setInputTextData] = useState({
-        busca: '',
-    });
+    const dispatch = useDispatch();
 
-    const [isSubmiting, setIsSubmiting] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const handleInputTextChange = (event) => {
-        const { name, value } = event.target;
+    const [hasError, setHasError] = useState(false);
 
-        setInputTextData({...inputTextData, [name]: value});
+    const [people, setPeople] = useState([]);
+
+    const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+
+    const [deletedItem, setDeletedItem] = useState({});
+
+    useEffect(() => {
+        getPhysicalPeople();
+    }, []);
+
+    const getPhysicalPeople = async () => {
+        try {
+            setIsLoading(true);
+
+            setHasError(false);
+
+            const response = await dispatch(PhysicalPersonOperations
+                .listPhysicalPeople());
+
+            setIsLoading(false);
+
+            setPeople(response);
+        } catch (err) {
+            console.log('getPhysicalPeople', err);
+
+            setIsLoading(false);
+
+            setHasError(true);
+        }
     }
 
-    const handleSearch = () => {
-        try {
-            const { busca } = inputTextData;
+    const handleConfirmDelete = (id, index) => {
+        setDeletedItem({
+            id,
+            index,
+        });
 
-            setIsSubmiting(true);
+        setOpenConfirmDialog(true);
+    }
 
-            setIsSubmiting(false);
-        } catch (err) {
-            console.log('handleSearch', err);
+    const handleDelete = async (item) => {
+        let _items = [...people];
 
-            setIsSubmiting(false);
-        }
+        _items.splice(item.index, 1);
+
+        setPeople(_items);
+
+        await dispatch(PhysicalPersonOperations.deletePhysicalPersonById(item.id));
+
+        setDeletedItem({});
     }
 
     return (
         <ContainerPoints>
             <Menu />
+
+            <ConfirmDialog
+                dialogOpen={openConfirmDialog}
+                handleCloseDialog={() => {
+                    setDeletedItem({});
+
+                    setOpenConfirmDialog(false);
+                }}
+                handleConfirmAction={() => {
+                    handleDelete(deletedItem);
+
+                    setOpenConfirmDialog(false);
+                }}
+                title="Excluir Pessoa Física"
+                message="Tem certeza que deseja excluir este item?"
+            />
 
             <Box className="container-page">
                 <ContentPoints>
@@ -71,60 +121,59 @@ const PhysicalPerson = () => {
                         </Tooltip>
                     </Box>
 
-                    <ContainerSearch>
-                        <FormControl
-                            variant="outlined"
-                            className="input"
-                        >
-                            <InputLabel htmlFor="outlined-adornment-password">
-                                Procurar
-                            </InputLabel>
+                    <Box>
+                        <LoadingCard
+                            rows={2}
+                            isLoading={isLoading}
+                            hasError={hasError}
+                            onPress={getPhysicalPeople}
+                        />
 
-                            <OutlinedInput
-                                id="outlined-adornment-search"
-                                type="search"
-                                name="busca"
-                                labelWidth={65}
-                                value={inputTextData.busca}
-                                onChange={handleInputTextChange}
-                                disabled={isSubmiting}
-                                startAdornment={
-                                    <InputAdornment position="start">
-                                        <IconButton
-                                            aria-label="toggle password visibility"
-                                            onMouseDown={event => event.preventDefault()}
-                                            edge="start"
-                                        >
-                                            <Search />
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                            />
-                        </FormControl>
+                        {!isLoading && !hasError && people && people.length === 0 && (
+                            <p>Nenhum resultado encontrado</p>
+                        )}
 
-                        <Box className="grid-button">
-                            <Box className="wrapper">
-                                {isSubmiting && (
-                                    <CircularProgress
-                                        className="circular-progress"
-                                        style={{ width: 24, height: 24 }}
-                                    />
-                                )}
+                        {!isLoading && !hasError && people && people.length > 0 && people.map((item, index) => (
+                            <ContainerPhysicalPersonCard key={item.cpf}>
+                                <Box className="item-container-name">
+                                    <Box className="item-flex">
+                                        <h2>{item.nomeCompleto}</h2>
 
-                                <Button
-                                    aria-label="Submeter formulário de pesquisa"
-                                    type="submit"
-                                    variant="contained"
-                                    color="primary"
-                                    size="large"
-                                    disabled={isSubmiting}
-                                    onClick={handleSearch}
-                                >
-                                    Procurar
-                                </Button>
-                            </Box>
-                        </Box>
-                    </ContainerSearch>
+                                        <Tooltip title="Editar" arrow>
+                                            <IconButton
+                                                aria-label="Editar"
+                                                component={Link}
+                                                to={`/pessoas-fisicas/editar/${item.id}`}
+                                            >
+                                                <Edit />
+                                            </IconButton>
+                                        </Tooltip>
+
+                                        <Tooltip title="Excluir" arrow>
+                                            <IconButton
+                                                aria-label="Excluir"
+                                                onClick={() => handleConfirmDelete(item.id, index)}
+                                            >
+                                                <Delete />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Box>
+
+                                    <Box className="item-status">
+                                        <p>{item.statusAlistamento}</p>
+                                    </Box>
+                                </Box>
+
+                                <p>
+                                    CPF: {item.cpf.replace(/(\d{3})?(\d{3})?(\d{3})?(\d{2})/, '$1.$2.$3-$4')}
+                                </p>
+
+                                <p>
+                                    {item.bairro} - {item.municipio} - {item.estado}
+                                </p>
+                            </ContainerPhysicalPersonCard>
+                        ))}
+                    </Box>
                 </ContentPoints>
             </Box>
         </ContainerPoints>

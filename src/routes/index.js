@@ -21,12 +21,6 @@ const Routes = () => {
                 />
 
                 <CustomRoute
-                    path="/criar-conta"
-                    component={Modules.SignUp}
-                    exact
-                />
-
-                <CustomRoute
                     path="/status-do-alistamento"
                     component={Modules.Status}
                     exact
@@ -41,6 +35,12 @@ const Routes = () => {
 
                 <Route
                     path="/pessoas-fisicas/adicionar"
+                    component={Modules.CreateEditPhysicalPerson}
+                    exact
+                />
+
+                <Route
+                    path="/pessoas-fisicas/editar/:id"
                     component={Modules.CreateEditPhysicalPerson}
                     exact
                 />

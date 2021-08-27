@@ -40,6 +40,11 @@ const theme = createTheme({
                 borderRadius: 12,
             },
         },
+        MuiAlert: {
+            root: {
+                borderRadius: 12,
+            },
+        },
     },
 });
 

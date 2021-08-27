@@ -3,14 +3,19 @@ import styled from 'styled-components';
 import {withTheme} from '@material-ui/core/styles';
 
 export const Container = withTheme(styled.div`
-    .container-box {
+    .container-section {
+        margin-bottom: 16px;
+    }
+
+    .container-flex {
         display: flex;
+        margin-bottom: 16px;
 
         @media(max-width: 768px) {
             flex-direction: column;
         }
 
-        .item-box {
+        .item-flex {
             flex: 1;
             width: 100%;
 
@@ -47,15 +52,15 @@ export const Container = withTheme(styled.div`
                 height: 56px;
             }
         }
+    }
 
-        .grid-button {
-            display: flex;
-            justify-content: flex-end;
+    .grid-button {
+        display: flex;
+        justify-content: flex-end;
 
-            .skeleton {
-                width: 200px;
-                height: 42px;
-            }
+        .skeleton {
+            width: 200px;
+            height: 42px;
         }
     }
 `);

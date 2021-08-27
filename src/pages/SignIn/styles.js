@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { withTheme  } from '@material-ui/core/styles';
+import { withTheme } from '@material-ui/core/styles';
 
 import background from '../../assets/sign-in-background.jpg';
 
@@ -38,7 +38,7 @@ export const ContainerSignIn = withTheme(styled.div`
 
         .grid-button {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
 
             .container-links {

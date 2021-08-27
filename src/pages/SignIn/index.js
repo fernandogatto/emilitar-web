@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 import {
     Box,
@@ -156,12 +156,6 @@ const SignIn = () => {
                     </FormControl>
 
                     <Box mt={2} className="grid-button">
-                        <Box className="container-links">
-                            <Link to="/criar-conta">
-                                Criar conta
-                            </Link>
-                        </Box>
-
                         <Box className="wrapper">
                             {isSubmiting && (
                                 <CircularProgress

@@ -53,7 +53,7 @@ const AuthOperations = {
         try {
             localStorage.removeItem(`@${Storage.project}:accessToken`);
 
-            Toast.showSuccess('Você saiu da aplicação');
+            Toast.showSuccess('Logout feito com sucesso');
 
             return {};
         } catch (error) {
