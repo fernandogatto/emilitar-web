@@ -81,13 +81,13 @@ yarn start
 
 The project consists of the vision of two actors: the public servant and the individual.
 
-Sign in
+Sign in:
 
 <img
     alt="Sign in"
     title="Sign in"
     src=".github/sign-in.png"
-    width="300"
+    width="800"
 />
 
 Status public servant:
@@ -96,7 +96,7 @@ Status public servant:
     alt="Status public servant"
     title="Status public servant"
     src=".github/status.png"
-    width="300"
+    width="800"
 />
 
 Physical people:
@@ -105,7 +105,7 @@ Physical people:
     alt="Physical people"
     title="Physical people"
     src=".github/physical-people.png"
-    width="300"
+    width="800"
 />
 
 Status individual:
@@ -114,14 +114,14 @@ Status individual:
     alt="Status individual"
     title="Status individual"
     src=".github/status-2.png"
-    width="300"
+    width="800"
 />
 
 <img
     alt="Status individual"
     title="Status individual"
     src=".github/status-3.png"
-    width="300"
+    width="800"
 />
 
 ## 👍 Contribute <a name="contribute"/>
