@@ -45,6 +45,7 @@ To get the API, follow this [eMilitar API](https://emilitar-api.herokuapp.com/sw
 - [ReactJS](https://pt-br.reactjs.org/)
 - [React Redux](https://react-redux.js.org/)
 - [Styled Components](https://styled-components.com/)
+- [Material UI](https://material-ui.com/)
 
 ## 📂 Installation <a name="installation"/>
 
