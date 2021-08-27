@@ -20,12 +20,16 @@ import {
     CircularProgress,
 } from '@material-ui/core';
 
-import { ArrowBack } from '@material-ui/icons';
+import { ArrowBack, StarRateSharp } from '@material-ui/icons';
+
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 import {
     ContainerCreateEditPoints,
     ContentCreateEditPoints,
 } from './styles';
+
+import { useAuth } from '../../common/contexts/Auth';
 
 import Menu from '../../components/Menu';
 
@@ -39,12 +43,16 @@ import { validateCPF, validateEmail } from '../../common/helpers/validations';
 
 import PhysicalPersonOperations from '../../common/rules/PhysicalPerson/PhysicalPersonOperations';
 
+import CityOperations from '../../common/rules/City/CityOperations';
+
 const CreateEditPhysicalPerson = ({ match }) => {
     const { id } = match.params;
 
     const dispatch = useDispatch();
 
     const history = useHistory();
+
+    const { isLoadingUser, hasErrorUser, user, getUser } = useAuth();
 
     const [inputTextData, setInputTextData] = useState({
         nome: '',
@@ -77,12 +85,14 @@ const CreateEditPhysicalPerson = ({ match }) => {
         telefoneInvalido: false,
         emailContato: false,
         emailInvalido: false,
-        cep: false,
-        estado: false,
-        municipio: false,
         escolaridade: false,
         estadoCivil: false,
         tipoSanguineo: false,
+        cep: false,
+        estado: false,
+        municipio: false,
+        logradouro: false,
+        numero: false,
     });
 
     const [isLoadingPhysicalPerson, setIsLoadingPhysicalPerson] = useState(false);
@@ -101,9 +111,13 @@ const CreateEditPhysicalPerson = ({ match }) => {
 
     const [bloodTypes, setBloodTypes] = useState([]);
 
+    const [city, setCity] = useState({});
+
     const [isSubmiting, setIsSubmiting] = useState(false);
 
     const [isUpdate, setIsUpdate] = useState(false);
+
+    const [alertIsOpen, setAlertIsOpen] = useState(true);
 
     useEffect(() => {
         getOptions();
@@ -117,7 +131,10 @@ const CreateEditPhysicalPerson = ({ match }) => {
         try {
             setIsLoadingOptions(true);
 
-            const response = await dispatch(PhysicalPersonOperations.getOptions());
+            setHasErrorOptions(false);
+
+            const response = await dispatch(PhysicalPersonOperations
+                .getOptions());
 
             setIsLoadingOptions(false);
 
@@ -130,6 +147,8 @@ const CreateEditPhysicalPerson = ({ match }) => {
             console.log('getOptions', err);
 
             setIsLoadingOptions(false);
+
+            setHasErrorOptions(true);
         }
     }
 
@@ -145,8 +164,6 @@ const CreateEditPhysicalPerson = ({ match }) => {
                 .getPhysicalPersonById(id));
 
             setIsLoadingPhysicalPerson(false);
-
-            console.log('getPhysicalPerson', response);
 
             setInputTextData({
                 nome: response.nome,
@@ -164,7 +181,7 @@ const CreateEditPhysicalPerson = ({ match }) => {
 
             setInputSelectData({
                 estado: response.endereco.municipio.codigoEstado,
-                municipio: '',
+                municipio: response.endereco.municipio.nome,
                 escolaridade: response.escolaridade.id,
                 estadoCivil: response.estadoCivil.id,
                 tipoSanguineo: response.tipoSanguineo.id
@@ -178,6 +195,62 @@ const CreateEditPhysicalPerson = ({ match }) => {
 
             setHasErrorPhysicalPerson(true);
         }
+    }
+
+    useEffect(() => {
+        if (
+            !isUpdate &&
+            !isLoadingUser &&
+            !hasErrorUser &&
+            user &&
+            user.nome !== ''
+        ) {
+            setUserState();
+
+            handleStateChange();
+        }
+    }, [user]);
+
+    const setUserState = () => {
+        const name = 'estado';
+
+        setInputSelectData({ ...inputSelectData, [name]: user.codigoEstado });
+    }
+
+    const handleStateChange = async () => {
+        try {
+            const response = await dispatch(CityOperations
+                .getCitiesByState(user.codigoEstado));
+
+            handleCityChange(response);
+        } catch (err) {
+            console.log('handleCityChange', err);
+        }
+    }
+
+    const handleCityChange = (values) => {
+        const _city = values.find(item => item.nome === user.municipio);
+
+        setCity(_city);
+    }
+
+    useEffect(() => {
+        if (
+            !isUpdate &&
+            !isLoadingUser &&
+            !hasErrorUser &&
+            user &&
+            user.nome !== '' &&
+            inputSelectData.estado !== ''
+        ) {
+            setUserCity();
+        }
+    }, [inputSelectData.estado]);
+
+    const setUserCity = () => {
+        const name = 'municipio';
+
+        setInputSelectData({ ...inputSelectData, [name]: user.municipio });
     }
 
     const handleInputTextChange = (event) => {
@@ -284,15 +357,37 @@ const CreateEditPhysicalPerson = ({ match }) => {
 
             setInputError({
                 nome: nome === '' ? true : false,
+                sobrenome: sobrenome === '' ? true : false,
+                cpf: cpf === '' ? true : false,
+                telefone: telefone === '' ? true : false,
+                emailContato: emailContato === '' ? true : false,
+                escolaridade: escolaridade === '' ? true : false,
+                estadoCivil: estadoCivil === '' ? true : false,
+                tipoSanguineo: tipoSanguineo === '' ? true : false,
+                cep: cep === '' ? true : false,
+                estado: estado === '' ? true : false,
+                municipio: municipio === '' ? true : false,
+                logradouro: logradouro === '' ? true : false,
+                numero: (numero === 0 || numero < 0) ? true : false,
             });
 
             if (
                 nome !== '' &&
                 sobrenome !== '' &&
                 cpf !== '' &&
+                !inputError.cpfInvalido &&
                 telefone !== '' &&
+                !inputError.telefoneInvalido &&
                 emailContato !== '' &&
-                !inputError.emailInvalido
+                !inputError.emailInvalido &&
+                escolaridade !== '' &&
+                estadoCivil !== '' &&
+                tipoSanguineo !== '' &&
+                cep !== '' &&
+                estado !== '' &&
+                municipio !== '' &&
+                logradouro !== '' &&
+                numero > 0
             ) {
                 const data = {
                     nome,
@@ -307,28 +402,22 @@ const CreateEditPhysicalPerson = ({ match }) => {
                         numero: Number(numero),
                         complemento,
                         bairro,
-                        'municipio': {
-                            id: 0,
-                            nome: municipio,
-                            codigoEstado: estado,
-                        },
+                        municipio: city,
                     },
                     escolaridade: schooling.find(item => item.id === escolaridade),
                     estadoCivil: civilStatus.find(item => item.id === estadoCivil),
                     tipoSanguineo: bloodTypes.find(item => item.id === tipoSanguineo),
                 };
 
-                console.log('handleSubmit', data)
-
                 setIsSubmiting(true);
 
-                // isUpdate
-                //     ? await dispatch(PhysicalPersonOperations.updatePhysicalPersonById(id, data))
-                //     : await dispatch(PhysicalPersonOperations.createPhysicalPerson(data));
+                isUpdate
+                    ? await dispatch(PhysicalPersonOperations.updatePhysicalPersonById(id, data))
+                    : await dispatch(PhysicalPersonOperations.createPhysicalPerson(data));
 
                 setIsSubmiting(false);
 
-                // history.goBack();
+                history.goBack();
             }
         } catch (err) {
             console.log('handleSubmit', err);
@@ -367,7 +456,7 @@ const CreateEditPhysicalPerson = ({ match }) => {
                         (!isLoadingPhysicalPerson &&
                             !hasErrorPhysicalPerson &&
                             physicalPerson &&
-                            physicalPerson.nome !== '') && (
+                            physicalPerson.nome !== '')) && (
                                 <Box className="container-form">
                                     <Box className="container-section container-flex">
                                         <Box className="item-flex">
@@ -613,6 +702,34 @@ const CreateEditPhysicalPerson = ({ match }) => {
                                                 )}
                                             </InputMask>
 
+                                            {alertIsOpen && (
+                                                <Alert
+                                                    severity="info"
+                                                    className="input"
+                                                    style={{
+                                                        height: 128,
+                                                    }}
+                                                >
+                                                    <AlertTitle>
+                                                        Atenção!
+                                                    </AlertTitle>
+
+                                                    <p>Só é permitido cadastrar pessoas no município em que você atua.</p>
+
+                                                    <Box
+                                                        style={{ display: 'flex', justifyContent: 'flex-end'}}
+                                                    >
+                                                        <Button
+                                                            size="small"
+                                                            disabled={isSubmiting}
+                                                            onClick={() => setAlertIsOpen(false)}
+                                                        >
+                                                            Fechar
+                                                        </Button>
+                                                    </Box>
+                                                </Alert>
+                                            )}
+
                                             <FormControl
                                                 required
                                                 error={inputError.estado}
@@ -629,7 +746,7 @@ const CreateEditPhysicalPerson = ({ match }) => {
                                                     onChange={handleSelectChange}
                                                     label="Estado"
                                                     name="estado"
-                                                    disabled={isSubmiting}
+                                                    disabled={isSubmiting || user.codigoEstado !== ''}
                                                 >
                                                     {Object.keys(ListaEstados).map(key => (
                                                         <MenuItem
@@ -661,10 +778,14 @@ const CreateEditPhysicalPerson = ({ match }) => {
 
                                                 <Select
                                                     value={inputSelectData.municipio}
-                                                    onChange={handleSelectChange}
+                                                    onChange={(event) => {
+                                                        handleSelectChange(event);
+
+                                                        handleCityChange(event);
+                                                    }}
                                                     label="Cidade"
                                                     name="municipio"
-                                                    disabled={isSubmiting}
+                                                    disabled={isSubmiting || user.municipio !== ''}
                                                 >
                                                     {inputSelectData.estado &&
                                                         ListaCidades[inputSelectData.estado] &&
@@ -708,6 +829,8 @@ const CreateEditPhysicalPerson = ({ match }) => {
                                                 name="numero"
                                                 label="Número"
                                                 fullWidth
+                                                inputProps={{ min: 0 }}
+                                                min={0}
                                                 value={inputTextData.numero}
                                                 onChange={handleInputTextChange}
                                                 disabled={isSubmiting}
@@ -764,7 +887,7 @@ const CreateEditPhysicalPerson = ({ match }) => {
                                         </Box>
                                     </Box>
                                 </Box>
-                    ))}
+                    )}
                 </ContentCreateEditPoints>
             </Box>
         </ContainerCreateEditPoints>
