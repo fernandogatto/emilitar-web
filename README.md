@@ -11,14 +11,14 @@
   <a href="https://github.com/fernandogatto/" target="_blank">
     <img src="https://img.shields.io/badge/author-fernandogatto-13B0FC" alt="Author">
   </a>
-    
+
   <a href="https://github.com/sapucaialuann/" target="_blank">
     <img src="https://img.shields.io/badge/author-sapucaialuann-13B0FC" alt="Author">
   </a>
 
   <img src="https://img.shields.io/badge/license-MIT-%2313B0FC" alt="License">
-  
-  <img src="https://img.shields.io/github/forks/fernandogatto/plantmanager-mobile?color=13B0FC" alt="Forks">     
+
+  <img src="https://img.shields.io/github/forks/fernandogatto/plantmanager-mobile?color=13B0FC" alt="Forks">
 
   <img src="https://img.shields.io/github/stars/fernandogatto/plantmanager-mobile?color=13B0FC" alt="Stars">
 </p>
@@ -68,11 +68,61 @@ git@github.com:fernandogatto/emilitar-web.git
 yarn install
 ```
 
-**Run API**
-
 ## 🚀 Getting start <a name="start"/>
 
+Run the following command in order in terminal:
+
+```bash
+# Start the server
+yarn start
+```
+
 ## 💻 Project <a name="project"/>
+
+The project consists of the vision of two actors: the public servant and the individual.
+
+Sign in
+
+<img
+    alt="Sign in"
+    title="Sign in"
+    src=".github/sign-in.png"
+    width="300"
+/>
+
+Status public servant:
+
+<img
+    alt="Status public servant"
+    title="Status public servant"
+    src=".github/status.png"
+    width="300"
+/>
+
+Physical people:
+
+<img
+    alt="Physical people"
+    title="Physical people"
+    src=".github/physical-people.png"
+    width="300"
+/>
+
+Status individual:
+
+<img
+    alt="Status individual"
+    title="Status individual"
+    src=".github/status-2.png"
+    width="300"
+/>
+
+<img
+    alt="Status individual"
+    title="Status individual"
+    src=".github/status-3.png"
+    width="300"
+/>
 
 ## 👍 Contribute <a name="contribute"/>
 
