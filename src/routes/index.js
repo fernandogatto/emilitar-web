@@ -27,22 +27,25 @@ const Routes = () => {
                     isPrivate
                 />
 
-                <Route
+                <CustomRoute
                     path="/pessoas-fisicas"
                     component={Modules.PhysicalPerson}
                     exact
+                    isPrivate
                 />
 
-                <Route
+                <CustomRoute
                     path="/pessoas-fisicas/adicionar"
                     component={Modules.CreateEditPhysicalPerson}
                     exact
+                    isPrivate
                 />
 
-                <Route
+                <CustomRoute
                     path="/pessoas-fisicas/editar/:id"
                     component={Modules.CreateEditPhysicalPerson}
                     exact
+                    isPrivate
                 />
             </Switch>
         </Router>
