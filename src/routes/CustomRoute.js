@@ -15,16 +15,16 @@ const CustomRoute = ({ isPrivate, component: Component, ...rest }) => {
     return (
         <Route
             {...rest}
-            render={({ location }) => {
+            render={(props) => {
                 return _isPrivate === !!accessToken ? (
-                    <Component />
+                    <Component {...props} />
                 ) : (
                     <Redirect
                         to={{
                             pathname: _isPrivate
                                 ? '/'
                                 : '/status-do-alistamento',
-                            state: { from: location },
+                            state: { from: props.location },
                         }}
                     />
                 )
