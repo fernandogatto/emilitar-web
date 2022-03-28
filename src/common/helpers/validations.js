@@ -35,7 +35,7 @@ export function validateCPF(cpf) {
 }
 
 export function validateEmail(email) {
-	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	var re = /^[a-zA-Z\d][.-_a-zA-Z\d]+@(([a-zA-Z0-9àáâãéêíóôõúüç]-?){1,25}[a-zA-Z0-9àáâãéêíóôõúüç]\.)+[a-zA-Z]+$/;
 	return re.test(String(email).toLowerCase());
 }
 
